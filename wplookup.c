@@ -114,8 +114,7 @@ static void wplookup_remove_from_conv(PidginConversation *gtkconv){
   GtkTextView *view;
   view = GTK_TEXT_VIEW(gtkconv->entry);
   
-  
-  g_signal_handlers_disconnect_matched(G_OBJECT(view),G_SIGNAL_MATCH_FUNC, 0, 0, NULL, G_CALLBACK(show_wikipedia), NULL);
+  //TODO: disconnect menu-entry callback
   g_signal_handlers_disconnect_matched(G_OBJECT(view),G_SIGNAL_MATCH_FUNC, 0, 0, NULL, G_CALLBACK(menu_popup), NULL);
 }
 
