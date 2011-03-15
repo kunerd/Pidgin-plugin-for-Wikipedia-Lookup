@@ -47,7 +47,7 @@ static void GetActiveConversation(PidginConversation **conv){
 
 static void show_wikipedia(gchar *search_text)
 {
-	const gchar *wikipedia = "http://de.wikipedia.org/wiki/";
+	const gchar *wikipedia = "http://en.wikipedia.org/wiki/";
 	gchar *search_url = NULL;
 	search_url = malloc(strlen(wikipedia)+1+strlen(search_text)+1);
 	if(search_url != NULL)
@@ -166,7 +166,7 @@ static PurplePluginInfo info = {
     "0.1",
     "Wikipedia-Lookup Plugin",
     "Plugin that show you Wikipedia articles for recieved or typed words.",
-    "Hendrik Kunert kunerd@users.sourceforge.net",
+    "Hendrik Kunert <kunerd@users.sourceforge.net>",
     "https://sourceforge.net/projects/pidginpluginfor/",
     plugin_load,  //on load
     plugin_unload,//on unload   gboolean plugin_unload(PurplePlugin *plugin)
