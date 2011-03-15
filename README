@@ -1,0 +1,38 @@
+Wikipedia Lookup Pidgin Plugin
+
+Building and Installation
+-------------------------
+To build the plug-in run:
+	$ make
+	
+To install the plug-in in YOUR pidgin default directory run:
+	$ make install
+	
+After you have installed the plugin, open Pidgin and choose 
+it from the Plugins Dialog.
+
+
+
+How to use
+----------
+Open a conversation window and type in a word. Now select the
+word, open the context-menu (right-click) and choose menu entry
+Wikipedia.
+More functions comming soon. 
+
+
+
+Support
+-------
+http://sourceforge.net/projects/pidginpluginfor/
+
+
+Bug-Report
+----------
+kunerd@users.sourceforge.net
+
+
+
+Developers
+----------
+Hendrik Kunert <kunerd@users.sourceforge.net>
