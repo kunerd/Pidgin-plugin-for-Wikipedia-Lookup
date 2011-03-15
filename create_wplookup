@@ -1,0 +1,3 @@
+#!/bin/bash
+make wplookup.so
+cp wplookup.so ~/.purple/plugins/

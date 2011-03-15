@@ -1,5 +1,8 @@
 /*
- * Wikipedia Lookup - Description.
+ * Wikipedia Lookup - A third-party Pidgin plug-in which offers 
+ *					  you the possibility to look up received and
+ *					  typed words on Wikipedia.
+ *
  * Copyright (C) 2011 Hendrik Kunert kunerd@users.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -22,16 +25,7 @@
 #include <glib.h>
 #include <stdio.h>
 
-#include "internal.h"
-#include "conversation.h"
-#include "debug.h"
-#include "plugin.h"
-#include <notify.h>
-#include "version.h"
-#include "gtkplugin.h"
-#include "gtkprefs.h"
-#include "gtkutils.h"
-#include "gtkconvwin.h"
+#include "wplookup.h"
 
 PurplePlugin *wplookup_plugin_handle = NULL;
 
@@ -68,18 +62,11 @@ static void show_wikipedia(gchar *search_text)
 
 static void menu_popup(GtkTextView *text_view, GtkMenu *menu)
 {
-    PidginConversation *GtkConv = NULL;
 	GtkTextBuffer *buffer = NULL;
 	GtkWidget *menu_entry = NULL;
 	gchar *search_text = NULL;
 	GtkTextIter start_selection;
 	GtkTextIter end_selection;
-
-    GetActiveConversation(&GtkConv);
-    if(GtkConv == NULL){
-      purple_debug_error("wplookup","No active Conversation found\n");
-      return;
-    }
     
   	buffer = gtk_text_view_get_buffer(text_view);
   	
@@ -90,7 +77,7 @@ static void menu_popup(GtkTextView *text_view, GtkMenu *menu)
 		  search_text = gtk_text_buffer_get_text(buffer, &start_selection, &end_selection, FALSE);
 		  
 		  /* add menu entry to popup menuy */
-		  menu_entry = gtk_menu_item_new_with_label(_("Wikipedia"));
+		  menu_entry = gtk_menu_item_new_with_label("Wikipedia");
 		  gtk_menu_append(GTK_MENU(menu),menu_entry);
 		  
 		  /* Attach the callback functions to the activate signal */
@@ -105,16 +92,21 @@ static void wplookup_attach_conv(PurpleConversation *conv){
   GtkTextView *view;
 
   gtkconv = PIDGIN_CONVERSATION(conv);
+  
+  view = GTK_TEXT_VIEW(gtkconv->imhtml);
+  g_signal_connect(G_OBJECT(view),"populate-popup", G_CALLBACK(menu_popup), NULL);
+  
   view = GTK_TEXT_VIEW(gtkconv->entry);
-
   g_signal_connect(G_OBJECT(view),"populate-popup", G_CALLBACK(menu_popup), NULL);
 }
 
 static void wplookup_remove_from_conv(PidginConversation *gtkconv){
   GtkTextView *view;
-  view = GTK_TEXT_VIEW(gtkconv->entry);
   
-  //TODO: disconnect menu-entry callback
+  view = GTK_TEXT_VIEW(gtkconv->imhtml);
+  g_signal_handlers_disconnect_matched(G_OBJECT(view),G_SIGNAL_MATCH_FUNC, 0, 0, NULL, G_CALLBACK(menu_popup), NULL);
+  
+  view = GTK_TEXT_VIEW(gtkconv->entry);
   g_signal_handlers_disconnect_matched(G_OBJECT(view),G_SIGNAL_MATCH_FUNC, 0, 0, NULL, G_CALLBACK(menu_popup), NULL);
 }
 
@@ -171,10 +163,10 @@ static PurplePluginInfo info = {
     WPLOOKUP_PLUGIN_ID,
     "Wikipedia Lookup",
     "0.1",
-    N_("Wikipedia-Lookup Plugin"),
-    N_("Plugin that show you Wikipedia articles for recieved or typed words."),
-    N_("Hendrik Kunert kunerd@users.sourceforge.net"),
-    N_("https://sourceforge.net/projects/pidginpluginfor/"),
+    "Wikipedia-Lookup Plugin",
+    "Plugin that show you Wikipedia articles for recieved or typed words.",
+    "Hendrik Kunert kunerd@users.sourceforge.net",
+    "https://sourceforge.net/projects/pidginpluginfor/",
     plugin_load,  //on load
     plugin_unload,//on unload   gboolean plugin_unload(PurplePlugin *plugin)
     NULL,         //on destroy  void plugin_destroy(PurplePlugin *plugin)
