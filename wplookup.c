@@ -69,7 +69,7 @@ static void show_wikipedia(gchar *search_text)
 static void menu_popup(GtkTextView *text_view, GtkMenu *menu)
 {
     PidginConversation *GtkConv = NULL;
-	GtkTextBuffer *buffer;
+	GtkTextBuffer *buffer = NULL;
 	GtkWidget *menu_entry = NULL;
 	gchar *search_text = NULL;
 	GtkTextIter start_selection;
@@ -90,11 +90,11 @@ static void menu_popup(GtkTextView *text_view, GtkMenu *menu)
 		  search_text = gtk_text_buffer_get_text(buffer, &start_selection, &end_selection, FALSE);
 		  
 		  /* add menu entry to popup menuy */
-		  menu_entry = gtk_menu_item_new_with_label("Wikipedia");
+		  menu_entry = gtk_menu_item_new_with_label(search_text);
 		  gtk_menu_append(GTK_MENU(menu),menu_entry);
 		  
 		  /* Attach the callback functions to the activate signal */
-		  g_signal_connect( GTK_OBJECT(menu_entry), "activate", GTK_SIGNAL_FUNC(show_wikipedia), (gpointer) search_text);
+		  gtk_signal_connect_object( GTK_OBJECT(menu_entry), "activate", GTK_SIGNAL_FUNC(show_wikipedia), (gpointer) search_text);
 
 		  gtk_widget_show(menu_entry);
 	}
