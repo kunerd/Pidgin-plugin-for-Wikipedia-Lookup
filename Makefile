@@ -51,4 +51,4 @@ $(PIDGIN_WPLOOKUP).o:$(PIDGIN_WPLOOKUP).c $(PIDGIN_WPLOOKUP).h
 	$(CC) $(CFLAGS) -fPIC -c $< -o $@ $(PIDGIN_CFLAGS) $(GTK_CFLAGS) -DHAVE_CONFIG_H
 
 clean:
-	rm -rf *.o *.c~ *.h~ *.so *.la .libs
+	rm -rf *.o *.c~ *.h~ *.so *.la .libs *.log

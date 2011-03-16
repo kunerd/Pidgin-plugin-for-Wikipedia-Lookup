@@ -33,7 +33,6 @@
 
 #define PURPLE_PLUGINS
 
-#include <string.h>
 #include <libpurple/conversation.h>
 #include <libpurple/debug.h>
 #include <libpurple/plugin.h>

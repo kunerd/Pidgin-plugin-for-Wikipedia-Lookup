@@ -25,6 +25,7 @@
 
 #include <glib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "wplookup.h"
 
@@ -49,7 +50,11 @@ static void show_wikipedia(gchar *search_text)
 {
 	const gchar *wikipedia = "http://en.wikipedia.org/wiki/";
 	gchar *search_url = NULL;
-	search_url = malloc(strlen(wikipedia)+1+strlen(search_text)+1);
+	int size = 0;
+	
+	size = strlen(wikipedia)+strlen(search_text)+1;
+	
+	search_url = (gchar *) malloc(size*sizeof(gchar));
 	if(search_url != NULL)
 	{
 		g_sprintf(search_url,"%s%s", wikipedia, search_text);
