@@ -18,7 +18,7 @@ How to use
 Open a conversation window and type in a word. Now select the
 word, open the context-menu (right-click) and choose menu entry
 Wikipedia.
-More functions comming soon. 
+More functions coming soon. 
 
 
 
@@ -29,6 +29,8 @@ http://sourceforge.net/projects/pidginpluginfor/
 
 Bug-Report
 ----------
+Please create a new Ticket at https://sourceforge.net/apps/trac/pidginpluginfor/newticket?type=bug.
+Or write a mail to:
 kunerd@users.sourceforge.net
 
 

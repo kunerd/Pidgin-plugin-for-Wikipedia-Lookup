@@ -26,6 +26,7 @@
 #include <glib.h>
 #include <stdio.h>
 #include <string.h>
+#include <curl/curl.h>
 
 #include "wplookup.h"
 
@@ -51,7 +52,7 @@ static void show_wikipedia(gchar *search_text)
 	const gchar *wikipedia = "http://en.wikipedia.org/wiki/";
 	gchar *search_url = NULL;
 	int size = 0;
-	
+
 	size = strlen(wikipedia)+strlen(search_text)+1;
 	
 	search_url = (gchar *) malloc(size*sizeof(gchar));
@@ -157,6 +158,51 @@ plugin_unload(PurplePlugin *plugin){
   return TRUE;
 }
 
+static GtkWidget *
+get_config_frame(PurplePlugin *plugin)
+{
+	GtkWidget *ret, *vbox, *win, *language_list;
+
+	ret = gtk_vbox_new(FALSE, PIDGIN_HIG_CAT_SPACE);
+	gtk_container_set_border_width (GTK_CONTAINER(ret), PIDGIN_HIG_BORDER);
+
+	vbox = pidgin_make_frame(ret, "Settings");
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 4);
+	gtk_widget_show(vbox);
+	
+	win = gtk_scrolled_window_new(0, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), win, TRUE, TRUE, 0);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(win),
+										GTK_SHADOW_IN);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(win),
+			GTK_POLICY_NEVER,
+			GTK_POLICY_ALWAYS);
+
+	gtk_widget_show(win);
+
+	language_list = create_view_and_model();
+	
+	gtk_container_add(GTK_CONTAINER(win), language_list);
+	gtk_widget_show(language_list);
+	
+
+	gtk_widget_show_all(ret);
+	return ret;
+}
+
+
+static PidginPluginUiInfo settings =
+{
+	get_config_frame,
+	0, /* page_num (Reserved) */
+
+	/* padding */
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
 static PurplePluginInfo info = {
     PURPLE_PLUGIN_MAGIC,
     PURPLE_MAJOR_VERSION,
@@ -176,7 +222,7 @@ static PurplePluginInfo info = {
     plugin_load,  //on load
     plugin_unload,//on unload   gboolean plugin_unload(PurplePlugin *plugin)
     NULL,         //on destroy  void plugin_destroy(PurplePlugin *plugin)
-    NULL,         //UI info struct pointer
+    &settings,         //UI info struct pointer
     NULL,         //unknown
     NULL,         //Configuration Frame
     NULL,         //UI functions

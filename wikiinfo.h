@@ -21,37 +21,43 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define PURPLE_PLUGINS
-
-#include <libpurple/conversation.h>
-#include <libpurple/debug.h>
-#include <libpurple/plugin.h>
-#include <libpurple/notify.h>
-#include <libpurple/version.h>
-#include <pidgin/gtkplugin.h>
+//#include <libpurple/conversation.h>
+//#include <libpurple/debug.h>
+//#include <libpurple/plugin.h>
+//#include <libpurple/notify.h>
+//#include <libpurple/version.h>
+#include <gtk/gtk.h>
+//#include <pidgin/gtkplugin.h>
+#include <curl/curl.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include <libxml/xpath.h>
 #include <gtkprefs.h>
 #include <gtkutils.h>
 #include <gtkconvwin.h>
-#include <gtk/gtk.h>
-
-#include "wikiinfo.h"
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-static void GetActiveConversation(PidginConversation **conv);
+struct MemoryStruct {
+	xmlChar *memory;
+	size_t size;
+};
 
-static void show_wikipedia(gchar *search_text);
+enum
+{
+  COL_NAME = 0,
+  COL_URL,
+  NUM_COLS
+} ;
 
-static void menu_popup(GtkTextView *text_view, GtkMenu *menu);
+static size_t
+WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 
-static void wplookup_attach_conv(PurpleConversation *conv);
+static xmlXPathObjectPtr
+getnodeset (xmlDocPtr doc, xmlChar *xpath);
 
-static void wplookup_remove_from_conv(PidginConversation *gtkconv);
+GtkWidget * create_view_and_model ();
 
-static gboolean
-plugin_load(PurplePlugin *plugin);
-
-static gboolean
-plugin_unload(PurplePlugin *plugin);
+static GtkTreeModel * getWikipediaLanguages();
