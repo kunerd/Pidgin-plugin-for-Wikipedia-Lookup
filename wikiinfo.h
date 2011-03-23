@@ -21,13 +21,10 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include <libpurple/conversation.h>
-//#include <libpurple/debug.h>
-//#include <libpurple/plugin.h>
-//#include <libpurple/notify.h>
-//#include <libpurple/version.h>
+#ifndef WIKIINFO_H
+#define WIKIINFO_H
+
 #include <gtk/gtk.h>
-//#include <pidgin/gtkplugin.h>
 #include <curl/curl.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -40,8 +37,11 @@
 #include <windows.h>
 #endif
 
+#define WPL_WIKIPEDIA_SITEMATRIX 	"http://de.wikipedia.org/w/api.php?action=sitematrix&format=xml"
+#define WPL_USER_AGENT				"Mozilla/4.0"
+
 struct MemoryStruct {
-	xmlChar *memory;
+	char *memory;
 	size_t size;
 };
 
@@ -55,9 +55,11 @@ enum
 static size_t
 WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 
-static xmlXPathObjectPtr
+xmlXPathObjectPtr
 getnodeset (xmlDocPtr doc, xmlChar *xpath);
 
 GtkWidget * create_view_and_model ();
 
 static GtkTreeModel * getWikipediaLanguages();
+
+#endif

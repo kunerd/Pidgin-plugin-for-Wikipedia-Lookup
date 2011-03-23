@@ -21,6 +21,9 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef WPLOOKUP_H
+#define WPLOOKUP_H
+
 #define PURPLE_PLUGINS
 
 #include <libpurple/conversation.h>
@@ -40,6 +43,12 @@
 #include <windows.h>
 #endif
 
+#define WIKIPEDIA_PATH "/wiki/"
+
+PurplePlugin *wplookup_plugin_handle = NULL;
+
+gchar *wikipedia_search_url = NULL;
+
 static void GetActiveConversation(PidginConversation **conv);
 
 static void show_wikipedia(gchar *search_text);
@@ -50,8 +59,12 @@ static void wplookup_attach_conv(PurpleConversation *conv);
 
 static void wplookup_remove_from_conv(PidginConversation *gtkconv);
 
+void wpl_set_url(gchar *url);
+
 static gboolean
 plugin_load(PurplePlugin *plugin);
 
 static gboolean
 plugin_unload(PurplePlugin *plugin);
+
+#endif

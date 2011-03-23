@@ -28,9 +28,85 @@
 #include <string.h>
 #include <curl/curl.h>
 
+#include "wpconf.h"
+
 #include "wplookup.h"
 
-PurplePlugin *wplookup_plugin_handle = NULL;
+static void wpl_save_settings()
+{
+	gchar *filename = NULL;
+	xmlDocPtr doc = NULL;       	/* document pointer */
+    xmlNodePtr root_node = NULL, 
+				url_node = NULL;	/* node pointers */
+	
+    /* 
+     * Creates a new document, a node and set it as a root node
+     */
+    doc = xmlNewDoc(BAD_CAST "1.0");
+    root_node = xmlNewNode(NULL, BAD_CAST "settings");
+    xmlDocSetRootElement(doc, root_node);
+
+    /* 
+     * xmlNewChild() creates a new node, which is "attached" as child node
+     * of root_node node. 
+     */
+    url_node = xmlNewChild(root_node, NULL, BAD_CAST "url",
+                BAD_CAST wikipedia_search_url);
+	
+    xmlNewProp(url_node, BAD_CAST "language", BAD_CAST "not set");
+
+    /* 
+     * Dumping document to stdio or file
+     */
+	filename = g_build_filename(purple_user_dir(),"settings.xml",NULL);
+    xmlSaveFormatFileEnc(filename, doc, "UTF-8", 1);
+
+	g_free(filename);
+
+    /*free the document */
+    xmlFreeDoc(doc);
+
+    /*
+     *Free the global variables that may
+     *have been allocated by the parser.
+     */
+    xmlCleanupParser();
+}
+
+static void wpl_load_settings()
+{	
+	gchar *filename = NULL;
+	xmlDocPtr doc = NULL;
+	xmlChar *xpathUrl = (xmlChar*) "/settings/url";
+
+	xmlXPathContextPtr context;
+	xmlXPathObjectPtr result;
+
+	filename = g_build_filename(purple_user_dir(),"settings.xml",NULL);
+	doc = xmlReadFile(filename, NULL, 0);
+	g_free(filename);
+	
+    if (doc == NULL) {
+		return;
+	}
+
+	result = getnodeset (doc, xpathUrl);
+	if(result)
+	{
+		wikipedia_search_url = xmlNodeListGetString(doc, result->nodesetval->nodeTab[0]->xmlChildrenNode, 1);
+		xmlXPathFreeObject (result);
+	}
+
+    /*free the document */
+    xmlFreeDoc(doc);
+
+    /*
+     *Free the global variables that may
+     *have been allocated by the parser.
+     */
+    xmlCleanupParser();
+
+}
 
 static void GetActiveConversation(PidginConversation **conv){
   GList *windows;
@@ -47,18 +123,36 @@ static void GetActiveConversation(PidginConversation **conv){
   *conv = NULL;
 }
 
+void wpl_set_url(gchar *url)
+{
+	int size = 0;
+
+	/* add 1 for \0 and the other for / in the url */
+	size = strlen(url)+strlen(WIKIPEDIA_PATH)+1;
+
+	if(wikipedia_search_url != NULL)
+		g_free(wikipedia_search_url);
+
+	wikipedia_search_url = (gchar *) malloc(size*sizeof(gchar));
+	
+	if(wikipedia_search_url != NULL)
+	{
+		g_sprintf(wikipedia_search_url,"%s%s", url, WIKIPEDIA_PATH);
+	}
+}
+
 static void show_wikipedia(gchar *search_text)
 {
-	const gchar *wikipedia = "http://en.wikipedia.org/wiki/";
+	//const gchar *wikipedia = "http://en.wikipedia.org/wiki/";
 	gchar *search_url = NULL;
 	int size = 0;
 
-	size = strlen(wikipedia)+strlen(search_text)+1;
+	size = strlen(wikipedia_search_url)+strlen(search_text)+1;
 	
 	search_url = (gchar *) malloc(size*sizeof(gchar));
 	if(search_url != NULL)
 	{
-		g_sprintf(search_url,"%s%s", wikipedia, search_text);
+		g_sprintf(search_url,"%s%s", wikipedia_search_url, search_text);
 		purple_notify_uri(wplookup_plugin_handle, search_url);
 	}
 	if(search_text != NULL)
@@ -125,6 +219,9 @@ plugin_load(PurplePlugin *plugin) {
 
     conv_handle = purple_conversations_get_handle();
 
+	/* load settings */
+	wpl_load_settings();
+
     /* Attach to existing conversations */
     for (convs = purple_get_conversations(); convs != NULL; convs = convs->next)
 	{
@@ -145,6 +242,13 @@ plugin_unload(PurplePlugin *plugin){
   GList *convs;
 
   conv_handle = purple_conversations_get_handle();
+
+  /*save settings */
+  wpl_save_settings();
+
+  /* free wikipedia_search_url */
+	if(wikipedia_search_url != NULL)
+		g_free(wikipedia_search_url);
 
   /* Delete Labels */
   for (convs = purple_get_conversations(); convs != NULL; convs = convs->next)
@@ -214,7 +318,7 @@ static PurplePluginInfo info = {
     PURPLE_PRIORITY_DEFAULT,
     WPLOOKUP_PLUGIN_ID,
     "Wikipedia Lookup",
-    "0.1",
+    VERSION_NUMBER,
     "Wikipedia-Lookup Plugin",
     "Plugin that show you Wikipedia articles for recieved or typed words.",
     "Hendrik Kunert <kunerd@users.sourceforge.net>",

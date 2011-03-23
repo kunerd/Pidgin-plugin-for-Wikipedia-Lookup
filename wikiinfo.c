@@ -44,7 +44,7 @@ WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 	return realsize;
 }
 
-static xmlXPathObjectPtr
+xmlXPathObjectPtr
 getnodeset (xmlDocPtr doc, xmlChar *xpath){
 
 	xmlXPathContextPtr context;
@@ -74,15 +74,15 @@ static GtkTreeModel * getWikipediaLanguages()
 	xmlDoc *doc = NULL;
 	xmlDoc *subDoc = NULL;
 	xmlNode *root_element = NULL;
-	xmlXPathObjectPtr result = NULL;
-	xmlXPathObjectPtr result2 = NULL;
+	xmlXPathObjectPtr resultName = NULL;
+	xmlXPathObjectPtr resultUrl = NULL;
 	xmlChar *xpathName = (xmlChar*) "/api/sitematrix/language";
 	xmlChar *xpathUrl = (xmlChar*) "/language/site/site[@code=\"wiki\"]/@url";
-	xmlNodeSetPtr nodeset = NULL;
-	xmlNodeSetPtr nodeset2= NULL;
+	xmlNodeSetPtr nodesetName = NULL;
+	xmlNodeSetPtr nodesetUrl= NULL;
 	xmlChar *url = NULL;
 	xmlChar *name = NULL;
-	GtkListStore  *store;
+	GtkListStore  *store = NULL;
 	GtkTreeIter    iter;
 	
 	struct MemoryStruct chunk;
@@ -98,7 +98,7 @@ static GtkTreeModel * getWikipediaLanguages()
 	curl_handle = curl_easy_init();
 
 	/* specify URL to get */ 
-	curl_easy_setopt(curl_handle, CURLOPT_URL, "http://de.wikipedia.org/w/api.php?action=sitematrix&format=xml");
+	curl_easy_setopt(curl_handle, CURLOPT_URL, WPL_WIKIPEDIA_SITEMATRIX);
 
 	/* send all data to this function  */
 	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
@@ -107,7 +107,7 @@ static GtkTreeModel * getWikipediaLanguages()
 	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
 
 	/* some servers don't like requests that are made without a user-agent field, so we provide one */ 
-	curl_easy_setopt (curl_handle, CURLOPT_USERAGENT, "Mozilla/4.0");
+	curl_easy_setopt (curl_handle, CURLOPT_USERAGENT, WPL_USER_AGENT);
 
 	/* get it! */ 
 	curl_easy_perform(curl_handle);
@@ -123,54 +123,43 @@ static GtkTreeModel * getWikipediaLanguages()
 		printf("no valid xml");
 	}
 
-	//print_element_names(root_element);
-	result = getnodeset (doc, xpathName);
+	resultName = getnodeset (doc, xpathName);
 	                 
-	if (result) {
-		nodeset = result->nodesetval;
+	if (resultName != NULL) {
+		nodesetName = resultName->nodesetval;
 
-		for (i=0; i < nodeset->nodeNr; i++) {
+		for (i=0; i < nodesetName->nodeNr; i++) {
 			
 			subDoc = xmlNewDoc("1.0");
 			if(subDoc == NULL){
 				printf("no valid xml");
 			}
 			
-			root_element = nodeset->nodeTab[i];
+			root_element = nodesetName->nodeTab[i];
 			xmlDocSetRootElement(subDoc, root_element);
-			result2 = getnodeset (subDoc, xpathUrl);
-			if (result2) {
-				nodeset2 = result2->nodesetval;
-				if(nodeset2->nodeNr)
+			resultUrl = getnodeset (subDoc, xpathUrl);
+			if (resultUrl != NULL) {
+				nodesetUrl = resultUrl->nodesetval;
+				if(nodesetUrl->nodeNr)
 				{
-					url = xmlNodeListGetString(subDoc, nodeset2->nodeTab[0]->xmlChildrenNode, 1);
-					name = xmlGetProp(nodeset->nodeTab[i], (const xmlChar*)"name");
+					url = xmlNodeListGetString(subDoc, nodesetUrl->nodeTab[0]->xmlChildrenNode, 1);
+					name = xmlGetProp(nodesetName->nodeTab[i], (const xmlChar*)"name");
 					
 					  gtk_list_store_append (store, &iter);
 					  gtk_list_store_set (store, &iter,
 										  COL_NAME, name,
 										  COL_URL, url,
 										  -1);
-					//printf("url: %s\n", keyword);
-					//if(keyword)
-					//	xmlFree(keyword);
-
+					
 					xmlFree(url);
 					xmlFree(name);
 				}
-				/*keyword = xmlGetProp(nodeset->nodeTab[i], (const xmlChar*)"name");
-				printf("language: %s\n", keyword);
-				if(keyword)
-					xmlFree(keyword);*/
-
-				xmlXPathFreeObject (result2);
+				xmlXPathFreeObject (resultUrl);
 			}
-			xmlUnlinkNode(root_element);
-			xmlFreeNode(root_element);
-			xmlFreeDoc(subDoc);
 		}
-		xmlXPathFreeObject (result);
+		xmlXPathFreeObject (resultName);
 	}
+	
 	/*free the document */
 	xmlFreeDoc(doc);
 	/*
@@ -179,19 +168,53 @@ static GtkTreeModel * getWikipediaLanguages()
 	*/
 	xmlCleanupParser();
 	if(chunk.memory)
-		xmlFree(chunk.memory);
+		free(chunk.memory);
 
 	GTK_TREE_MODEL (store);
 }
 
+  gboolean
+  view_selection_func (GtkTreeSelection *selection,
+                       GtkTreeModel     *model,
+                       GtkTreePath      *path,
+                       gboolean          path_currently_selected,
+                       gpointer          userdata)
+  {
+    GtkTreeIter iter;
+ 
+    if (gtk_tree_model_get_iter(model, &iter, path))
+    {
+      gchar *url;
+
+		gtk_tree_model_get(model, &iter, COL_URL, &url, -1);
+ 
+      if (!path_currently_selected)
+      {
+		  // safe selection
+
+           //g_print ("%s is going to be selected.\n", url);
+		   wpl_set_url(url);
+
+	  }
+ 
+      g_free(url);
+    }
+ 
+    return TRUE; /* allow selection state to change */
+  }
+
+
+
 GtkWidget *
 create_view_and_model ()
 {
-  GtkCellRenderer     *renderer;
-  GtkTreeModel        *model;
-  GtkWidget           *view;
+  GtkCellRenderer     *renderer = NULL;
+  GtkTreeModel        *model = NULL;
+  GtkWidget           *view = NULL;
+  GtkTreeSelection  *selection;
 
   view = gtk_tree_view_new ();
+  gtk_widget_set_size_request(view, -1, 200);
 
   /* --- Column #1 --- */
 
@@ -215,6 +238,13 @@ create_view_and_model ()
 
   model = getWikipediaLanguages();
 
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+    gtk_tree_selection_set_select_function(selection, view_selection_func, NULL, NULL);
+
+  gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)),
+                              GTK_SELECTION_SINGLE);
+
+	
   gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
 
   /* The tree view has acquired its own reference to the
