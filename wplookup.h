@@ -24,8 +24,15 @@
 #ifndef WPLOOKUP_H
 #define WPLOOKUP_H
 
+#define WPLOOKUP_PLUGIN_ID "gtk-hendrik_kunert-wikipedia-lookup"
+
 #define PURPLE_PLUGINS
 
+#include <glib.h>
+#include <glib/gprintf.h>
+#include <stdio.h>
+#include <string.h>
+#include <curl/curl.h>
 #include <libpurple/conversation.h>
 #include <libpurple/debug.h>
 #include <libpurple/plugin.h>
@@ -37,34 +44,28 @@
 #include <gtkconvwin.h>
 #include <gtk/gtk.h>
 
-#include "wikiinfo.h"
-
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-#define WIKIPEDIA_PATH "/wiki/"
-
 PurplePlugin *wplookup_plugin_handle = NULL;
 
-gchar *wikipedia_search_url = NULL;
+guchar *wikipedia_search_url = NULL;
 
-static void GetActiveConversation(PidginConversation **conv);
+//static void GetActiveConversation(PidginConversation **conv);
 
-static void show_wikipedia(gchar *search_text);
+/*static void show_wikipedia(guchar *search_text);
 
 static void menu_popup(GtkTextView *text_view, GtkMenu *menu);
 
 static void wplookup_attach_conv(PurpleConversation *conv);
 
-static void wplookup_remove_from_conv(PidginConversation *gtkconv);
+static void wplookup_remove_from_conv(PidginConversation *gtkconv);*/
 
-void wpl_set_url(gchar *url);
-
-static gboolean
+/*static gboolean
 plugin_load(PurplePlugin *plugin);
 
 static gboolean
-plugin_unload(PurplePlugin *plugin);
+plugin_unload(PurplePlugin *plugin);*/
 
 #endif

@@ -21,16 +21,10 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define WPLOOKUP_PLUGIN_ID "gtk-hendrik_kunert-wikipedia-lookup"
-
-#include <glib.h>
-#include <stdio.h>
-#include <string.h>
-#include <curl/curl.h>
+#include "wplookup.h"
+#include "wikiinfo.h"
 
 #include "wpconf.h"
-
-#include "wplookup.h"
 
 static void wpl_save_settings()
 {
@@ -58,7 +52,7 @@ static void wpl_save_settings()
     /* 
      * Dumping document to stdio or file
      */
-	filename = g_build_filename(purple_user_dir(),"settings.xml",NULL);
+	filename = g_build_filename(purple_user_dir(),"wpl_settings.xml",NULL);
     xmlSaveFormatFileEnc(filename, doc, "UTF-8", 1);
 
 	g_free(filename);
@@ -78,15 +72,15 @@ static void wpl_load_settings()
 	gchar *filename = NULL;
 	xmlDocPtr doc = NULL;
 	xmlChar *xpathUrl = (xmlChar*) "/settings/url";
-
-	xmlXPathContextPtr context;
 	xmlXPathObjectPtr result;
 
-	filename = g_build_filename(purple_user_dir(),"settings.xml",NULL);
+	filename = g_build_filename(purple_user_dir(),"wpl_settings.xml",NULL);
 	doc = xmlReadFile(filename, NULL, 0);
 	g_free(filename);
 	
     if (doc == NULL) {
+    	// set default, if no settings exist
+    	wpl_set_url((guchar*)"http://en.wikipedia.org");
 		return;
 	}
 
@@ -108,52 +102,18 @@ static void wpl_load_settings()
 
 }
 
-static void GetActiveConversation(PidginConversation **conv){
-  GList *windows;
-
-  /* Attach to existing conversations */
-  for (windows = pidgin_conv_windows_get_list(); windows != NULL; windows = windows->next)
-  {
-    PidginWindow *CurrentWindow = (PidginWindow*)windows->data;
-    if(pidgin_conv_window_has_focus(CurrentWindow)){
-      *conv = pidgin_conv_window_get_active_gtkconv(CurrentWindow);
-      return;
-    }
-  }
-  *conv = NULL;
-}
-
-void wpl_set_url(gchar *url)
+static void show_wikipedia(guchar *search_text)
 {
+	guchar *search_url = NULL;
 	int size = 0;
 
-	/* add 1 for \0 and the other for / in the url */
-	size = strlen(url)+strlen(WIKIPEDIA_PATH)+1;
-
-	if(wikipedia_search_url != NULL)
-		g_free(wikipedia_search_url);
-
-	wikipedia_search_url = (gchar *) malloc(size*sizeof(gchar));
+	size = strlen((gchar*)wikipedia_search_url)+strlen((gchar*)search_text)+1;
 	
-	if(wikipedia_search_url != NULL)
-	{
-		g_sprintf(wikipedia_search_url,"%s%s", url, WIKIPEDIA_PATH);
-	}
-}
-
-static void show_wikipedia(gchar *search_text)
-{
-	//const gchar *wikipedia = "http://en.wikipedia.org/wiki/";
-	gchar *search_url = NULL;
-	int size = 0;
-
-	size = strlen(wikipedia_search_url)+strlen(search_text)+1;
-	
-	search_url = (gchar *) malloc(size*sizeof(gchar));
+	search_url = (guchar *) malloc(size*sizeof(guchar));
 	if(search_url != NULL)
 	{
-		g_sprintf(search_url,"%s%s", wikipedia_search_url, search_text);
-		purple_notify_uri(wplookup_plugin_handle, search_url);
+		g_sprintf((gchar*)search_url,"%s%s", (gchar*)wikipedia_search_url, search_text);
+		purple_notify_uri(wplookup_plugin_handle, (gchar*)search_url);
 	}
 	if(search_text != NULL)
 		g_free(search_text);
@@ -165,7 +125,7 @@ static void menu_popup(GtkTextView *text_view, GtkMenu *menu)
 {
 	GtkTextBuffer *buffer = NULL;
 	GtkWidget *menu_entry = NULL;
-	gchar *search_text = NULL;
+	guchar *search_text = NULL;
 	GtkTextIter start_selection;
 	GtkTextIter end_selection;
     
@@ -175,7 +135,7 @@ static void menu_popup(GtkTextView *text_view, GtkMenu *menu)
   	if(gtk_text_buffer_get_selection_bounds(buffer, &start_selection, &end_selection))
   	{
 		  /* get selected text */
-		  search_text = gtk_text_buffer_get_text(buffer, &start_selection, &end_selection, FALSE);
+		  search_text = (guchar*)gtk_text_buffer_get_text(buffer, &start_selection, &end_selection, FALSE);
 		  
 		  /* add menu entry to popup menuy */
 		  menu_entry = gtk_menu_item_new_with_label("Wikipedia");

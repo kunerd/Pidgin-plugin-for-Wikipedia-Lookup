@@ -24,6 +24,8 @@
 #ifndef WIKIINFO_H
 #define WIKIINFO_H
 
+#include <glib.h>
+#include <glib/gprintf.h>
 #include <gtk/gtk.h>
 #include <curl/curl.h>
 #include <libxml/parser.h>
@@ -39,6 +41,7 @@
 
 #define WPL_WIKIPEDIA_SITEMATRIX 	"http://de.wikipedia.org/w/api.php?action=sitematrix&format=xml"
 #define WPL_USER_AGENT				"Mozilla/4.0"
+#define WIKIPEDIA_PATH 				"/wiki/"
 
 struct MemoryStruct {
 	char *memory;
@@ -52,14 +55,18 @@ enum
   NUM_COLS
 } ;
 
-static size_t
+extern guchar *wikipedia_search_url;
+
+size_t
 WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 
 xmlXPathObjectPtr
 getnodeset (xmlDocPtr doc, xmlChar *xpath);
 
-GtkWidget * create_view_and_model ();
+GtkWidget *create_view_and_model ();
 
-static GtkTreeModel * getWikipediaLanguages();
+GtkTreeModel *getWikipediaLanguages();
+
+void wpl_set_url(guchar *url);
 
 #endif

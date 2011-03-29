@@ -1,22 +1,26 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*- */
 /*
- * main.c
- * Copyright (C) Hendrik Kunert 2011 <hendrik@linux-vxjw.site>
-	 * 
- * libcurl is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
-	 * 
- * libcurl is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  Wikipedia Lookup - A third-party Pidgin plug-in which offers 
+ *					  you the possibility to look up received and
+ *					  typed words on Wikipedia.
+ *
+ *  Copyright (C) 2011 Hendrik Kunert kunerd@users.sourceforge.net
+ *
+ *  This file is part of wplookup.
+ *
+ *  wplookup is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Foobar is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
-//#include <glib.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +28,25 @@
 
 #include "wikiinfo.h"
 
-static size_t
+void wpl_set_url(guchar *url)
+{
+	int size = 0;
+
+	/* add 1 for \0 and the other for / in the url */
+	size = strlen((gchar*)url)+strlen(WIKIPEDIA_PATH)+1;
+
+	if(wikipedia_search_url != NULL)
+		g_free(wikipedia_search_url);
+
+	wikipedia_search_url = (guchar *) malloc(size*sizeof(guchar));
+	
+	if(wikipedia_search_url != NULL)
+	{
+		g_sprintf((gchar*)wikipedia_search_url,"%s%s", (gchar*)url, WIKIPEDIA_PATH);
+	}
+}
+
+size_t
 WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
 	size_t realsize = size * nmemb;
@@ -66,9 +88,8 @@ getnodeset (xmlDocPtr doc, xmlChar *xpath){
 	return result;
 }
 
-static GtkTreeModel * getWikipediaLanguages()
+GtkTreeModel *getWikipediaLanguages()
 {
-	char *marker;
 	int i = 0;
 	CURL *curl_handle=NULL;
 	xmlDoc *doc = NULL;
@@ -130,7 +151,7 @@ static GtkTreeModel * getWikipediaLanguages()
 
 		for (i=0; i < nodesetName->nodeNr; i++) {
 			
-			subDoc = xmlNewDoc("1.0");
+			subDoc = xmlNewDoc(BAD_CAST "1.0");
 			if(subDoc == NULL){
 				printf("no valid xml");
 			}
@@ -170,7 +191,7 @@ static GtkTreeModel * getWikipediaLanguages()
 	if(chunk.memory)
 		free(chunk.memory);
 
-	GTK_TREE_MODEL (store);
+	return GTK_TREE_MODEL (store);
 }
 
   gboolean
@@ -184,15 +205,13 @@ static GtkTreeModel * getWikipediaLanguages()
  
     if (gtk_tree_model_get_iter(model, &iter, path))
     {
-      gchar *url;
+      guchar *url;
 
 		gtk_tree_model_get(model, &iter, COL_URL, &url, -1);
  
       if (!path_currently_selected)
       {
 		  // safe selection
-
-           //g_print ("%s is going to be selected.\n", url);
 		   wpl_set_url(url);
 
 	  }
