@@ -45,9 +45,9 @@ static void wpl_save_settings()
      * of root_node node. 
      */
     url_node = xmlNewChild(root_node, NULL, BAD_CAST "url",
-                BAD_CAST wikipedia_search_url);
+                BAD_CAST wpl_settings.wikipedia_search_url);
 	
-    xmlNewProp(url_node, BAD_CAST "language", BAD_CAST "not set");
+    xmlNewProp(url_node, BAD_CAST "language", BAD_CAST wpl_settings.language);
 
     /* 
      * Dumping document to stdio or file
@@ -80,14 +80,15 @@ static void wpl_load_settings()
 	
     if (doc == NULL) {
     	// set default, if no settings exist
-    	wpl_set_url((guchar*)"http://en.wikipedia.org");
+    	wpl_set_url((guchar*)"English", (guchar*)"http://en.wikipedia.org");
 		return;
 	}
 
 	result = getnodeset (doc, xpathUrl);
 	if(result)
 	{
-		wikipedia_search_url = xmlNodeListGetString(doc, result->nodesetval->nodeTab[0]->xmlChildrenNode, 1);
+		wpl_settings.language = xmlGetProp(result->nodesetval->nodeTab[0], (const xmlChar*)"language");
+		wpl_settings.wikipedia_search_url = xmlNodeListGetString(doc, result->nodesetval->nodeTab[0]->xmlChildrenNode, 1);
 		xmlXPathFreeObject (result);
 	}
 
@@ -107,12 +108,12 @@ static void show_wikipedia(guchar *search_text)
 	guchar *search_url = NULL;
 	int size = 0;
 
-	size = strlen((gchar*)wikipedia_search_url)+strlen((gchar*)search_text)+1;
+	size = strlen((gchar*)wpl_settings.wikipedia_search_url)+strlen((gchar*)search_text)+1;
 	
 	search_url = (guchar *) malloc(size*sizeof(guchar));
 	if(search_url != NULL)
 	{
-		g_sprintf((gchar*)search_url,"%s%s", (gchar*)wikipedia_search_url, search_text);
+		g_sprintf((gchar*)search_url,"%s%s", (gchar*)wpl_settings.wikipedia_search_url, search_text);
 		purple_notify_uri(wplookup_plugin_handle, (gchar*)search_url);
 	}
 	if(search_text != NULL)
@@ -207,8 +208,8 @@ plugin_unload(PurplePlugin *plugin){
   wpl_save_settings();
 
   /* free wikipedia_search_url */
-	if(wikipedia_search_url != NULL)
-		g_free(wikipedia_search_url);
+	if(wpl_settings.wikipedia_search_url != NULL)
+		g_free(wpl_settings.wikipedia_search_url);
 
   /* Delete Labels */
   for (convs = purple_get_conversations(); convs != NULL; convs = convs->next)

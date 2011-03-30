@@ -50,7 +50,9 @@
 
 PurplePlugin *wplookup_plugin_handle = NULL;
 
-guchar *wikipedia_search_url = NULL;
+//guchar *wikipedia_search_url = NULL;
+
+struct settings wpl_settings;
 
 //static void GetActiveConversation(PidginConversation **conv);
 

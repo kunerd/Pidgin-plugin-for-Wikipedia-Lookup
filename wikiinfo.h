@@ -43,6 +43,12 @@
 #define WPL_USER_AGENT				"Mozilla/4.0"
 #define WIKIPEDIA_PATH 				"/wiki/"
 
+struct settings
+{
+	guchar *wikipedia_search_url;
+	guchar *language;
+};
+
 struct MemoryStruct {
 	char *memory;
 	size_t size;
@@ -55,7 +61,7 @@ enum
   NUM_COLS
 } ;
 
-extern guchar *wikipedia_search_url;
+extern struct settings wpl_settings;
 
 size_t
 WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
@@ -67,6 +73,6 @@ GtkWidget *create_view_and_model ();
 
 GtkTreeModel *getWikipediaLanguages();
 
-void wpl_set_url(guchar *url);
+void wpl_set_url(guchar *name, guchar *url);
 
 #endif

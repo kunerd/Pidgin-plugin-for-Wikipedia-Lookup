@@ -28,21 +28,34 @@
 
 #include "wikiinfo.h"
 
-void wpl_set_url(guchar *url)
+void wpl_set_url(guchar *name, guchar *url)
 {
 	int size = 0;
 
+	/*name */
 	/* add 1 for \0 and the other for / in the url */
-	size = strlen((gchar*)url)+strlen(WIKIPEDIA_PATH)+1;
+	size = strlen((gchar*)name)+1;
 
-	if(wikipedia_search_url != NULL)
-		g_free(wikipedia_search_url);
+	if(wpl_settings.language != NULL)
+		g_free(wpl_settings.language);
 
-	wikipedia_search_url = (guchar *) malloc(size*sizeof(guchar));
+	wpl_settings.language = (guchar *) malloc(size*sizeof(guchar));
 	
-	if(wikipedia_search_url != NULL)
+	if(wpl_settings.language != NULL)
 	{
-		g_sprintf((gchar*)wikipedia_search_url,"%s%s", (gchar*)url, WIKIPEDIA_PATH);
+		g_sprintf((gchar*)wpl_settings.language,"%s", (gchar*)name);
+	}
+
+	/* url */
+	size = strlen((gchar*)url)+strlen(WIKIPEDIA_PATH)+1;
+	if(wpl_settings.wikipedia_search_url != NULL)
+		g_free(wpl_settings.wikipedia_search_url);
+
+	wpl_settings.wikipedia_search_url = (guchar *) malloc(size*sizeof(guchar));
+	
+	if(wpl_settings.wikipedia_search_url != NULL)
+	{
+		g_sprintf((gchar*)wpl_settings.wikipedia_search_url,"%s%s", (gchar*)url, WIKIPEDIA_PATH);
 	}
 }
 
@@ -172,7 +185,7 @@ GtkTreeModel *getWikipediaLanguages(GtkTreeIter *sel_iter)
 										  COL_URL, url,
 										  -1);
 
-					if(strcmp((gchar*)name,"Deutsch")==0)
+					if(strcmp((gchar*)name,(gchar*)wpl_settings.language) == 0)
 					{
 						/*preselection*/
 						*sel_iter=iter;
@@ -211,14 +224,16 @@ GtkTreeModel *getWikipediaLanguages(GtkTreeIter *sel_iter)
  
     if (gtk_tree_model_get_iter(model, &iter, path))
     {
+		guchar *language;
       guchar *url;
 
+		gtk_tree_model_get(model, &iter, COL_NAME, &language, -1);
 		gtk_tree_model_get(model, &iter, COL_URL, &url, -1);
  
       if (!path_currently_selected)
       {
 		  // safe selection
-		   wpl_set_url(url);
+		   wpl_set_url(language, url);
 
 	  }
  
