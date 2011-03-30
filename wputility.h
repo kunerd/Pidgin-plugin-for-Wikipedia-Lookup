@@ -21,18 +21,12 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WPLOOKUP_H
-#define WPLOOKUP_H
+#ifndef WP_UTILITY_H
+#define WP_UTILITY_H
 
-#define WPLOOKUP_PLUGIN_ID "gtk-hendrik_kunert-wikipedia-lookup"
-#define PURPLE_PLUGINS
+#include <libxml/xpath.h>
 
-#include <pidgin.h>
-#include <libpurple/version.h>
-#include <pidgin/gtkplugin.h>
-
-PurplePlugin *wplookup_plugin_handle = NULL;
-
-struct settings wpl_settings;
+xmlXPathObjectPtr
+wputility_get_nodeset (xmlDocPtr doc, xmlChar *xpath);
 
 #endif

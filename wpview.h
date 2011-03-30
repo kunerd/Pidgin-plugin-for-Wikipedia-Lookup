@@ -21,18 +21,18 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WPLOOKUP_H
-#define WPLOOKUP_H
+#ifndef WP_VIEW_H
+#define WP_VIEW_H
 
-#define WPLOOKUP_PLUGIN_ID "gtk-hendrik_kunert-wikipedia-lookup"
-#define PURPLE_PLUGINS
-
+#include <string.h>
+#include <gtk/gtk.h>
 #include <pidgin.h>
-#include <libpurple/version.h>
-#include <pidgin/gtkplugin.h>
 
-PurplePlugin *wplookup_plugin_handle = NULL;
+#include "wpsettings.h"
 
-struct settings wpl_settings;
+extern struct settings wpl_settings;
+extern PurplePlugin *wplookup_plugin_handle;
+
+void wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu);
 
 #endif

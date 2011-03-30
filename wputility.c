@@ -21,18 +21,36 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WPLOOKUP_H
-#define WPLOOKUP_H
+#include "wputility.h"
 
-#define WPLOOKUP_PLUGIN_ID "gtk-hendrik_kunert-wikipedia-lookup"
-#define PURPLE_PLUGINS
+ /* Function : wputility_get_nodeset
+ 	-----------------------------------------------------------
+    Input    : 	xmlDocPtr doc	-> pointer to xml document
+    			xmlChar *xpath	-> xpath to find the nodeset
+    			
+    Output   : 	xmlXPathObjectPtr -> pointer to start node in the xml doc
+	 
+    Procedure: 	returns a pointer to an xml node found via xpath, if no such node
+    			exists return value is NULL
+ */
+xmlXPathObjectPtr
+wputility_get_nodeset (xmlDocPtr doc, xmlChar *xpath){
 
-#include <pidgin.h>
-#include <libpurple/version.h>
-#include <pidgin/gtkplugin.h>
+	xmlXPathContextPtr context;
+	xmlXPathObjectPtr result;
 
-PurplePlugin *wplookup_plugin_handle = NULL;
-
-struct settings wpl_settings;
-
-#endif
+	context = xmlXPathNewContext(doc);
+	if (context == NULL) {
+		return NULL;
+	}
+	result = xmlXPathEvalExpression(xpath, context);
+	xmlXPathFreeContext(context);
+	if (result == NULL) {
+		return NULL;
+	}
+	if(xmlXPathNodeSetIsEmpty(result->nodesetval)){
+		xmlXPathFreeObject(result);
+		return NULL;
+	}
+	return result;
+}

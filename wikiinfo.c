@@ -21,45 +21,9 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <gtk/gtk.h>
-
 #include "wikiinfo.h"
 
-void wpl_set_url(guchar *name, guchar *url)
-{
-	int size = 0;
-
-	/*name */
-	/* add 1 for \0 and the other for / in the url */
-	size = strlen((gchar*)name)+1;
-
-	if(wpl_settings.language != NULL)
-		g_free(wpl_settings.language);
-
-	wpl_settings.language = (guchar *) malloc(size*sizeof(guchar));
-	
-	if(wpl_settings.language != NULL)
-	{
-		g_sprintf((gchar*)wpl_settings.language,"%s", (gchar*)name);
-	}
-
-	/* url */
-	size = strlen((gchar*)url)+strlen(WIKIPEDIA_PATH)+1;
-	if(wpl_settings.wikipedia_search_url != NULL)
-		g_free(wpl_settings.wikipedia_search_url);
-
-	wpl_settings.wikipedia_search_url = (guchar *) malloc(size*sizeof(guchar));
-	
-	if(wpl_settings.wikipedia_search_url != NULL)
-	{
-		g_sprintf((gchar*)wpl_settings.wikipedia_search_url,"%s%s", (gchar*)url, WIKIPEDIA_PATH);
-	}
-}
-
-size_t
+static size_t
 WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
 	size_t realsize = size * nmemb;
@@ -77,28 +41,6 @@ WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 	mem->memory[mem->size] = 0;
 
 	return realsize;
-}
-
-xmlXPathObjectPtr
-getnodeset (xmlDocPtr doc, xmlChar *xpath){
-
-	xmlXPathContextPtr context;
-	xmlXPathObjectPtr result;
-
-	context = xmlXPathNewContext(doc);
-	if (context == NULL) {
-		return NULL;
-	}
-	result = xmlXPathEvalExpression(xpath, context);
-	xmlXPathFreeContext(context);
-	if (result == NULL) {
-		return NULL;
-	}
-	if(xmlXPathNodeSetIsEmpty(result->nodesetval)){
-		xmlXPathFreeObject(result);
-		return NULL;
-	}
-	return result;
 }
 
 GtkTreeModel *getWikipediaLanguages(GtkTreeIter *sel_iter)
@@ -157,7 +99,7 @@ GtkTreeModel *getWikipediaLanguages(GtkTreeIter *sel_iter)
 		printf("no valid xml");
 	}
 
-	resultName = getnodeset (doc, xpathName);
+	resultName = wputility_get_nodeset (doc, xpathName);
 	                 
 	if (resultName != NULL) {
 		nodesetName = resultName->nodesetval;
@@ -171,7 +113,7 @@ GtkTreeModel *getWikipediaLanguages(GtkTreeIter *sel_iter)
 			
 			root_element = nodesetName->nodeTab[i];
 			xmlDocSetRootElement(subDoc, root_element);
-			resultUrl = getnodeset (subDoc, xpathUrl);
+			resultUrl = wputility_get_nodeset (subDoc, xpathUrl);
 			if (resultUrl != NULL) {
 				nodesetUrl = resultUrl->nodesetval;
 				if(nodesetUrl->nodeNr)
@@ -233,7 +175,7 @@ GtkTreeModel *getWikipediaLanguages(GtkTreeIter *sel_iter)
       if (!path_currently_selected)
       {
 		  // safe selection
-		   wpl_set_url(language, url);
+		   wpsettings_change_settings(language, url);
 
 	  }
  

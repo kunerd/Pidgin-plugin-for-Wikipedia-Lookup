@@ -24,30 +24,18 @@
 #ifndef WIKIINFO_H
 #define WIKIINFO_H
 
-#include <glib.h>
-#include <glib/gprintf.h>
-#include <gtk/gtk.h>
-#include <curl/curl.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <libxml/xpath.h>
-#include <gtkprefs.h>
-#include <gtkutils.h>
-#include <gtkconvwin.h>
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 #define WPL_WIKIPEDIA_SITEMATRIX 	"http://de.wikipedia.org/w/api.php?action=sitematrix&format=xml"
 #define WPL_USER_AGENT				"Mozilla/4.0"
-#define WIKIPEDIA_PATH 				"/wiki/"
 
-struct settings
-{
-	guchar *wikipedia_search_url;
-	guchar *language;
-};
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <gtk/gtk.h>
+#include <libxml/xpath.h>
+#include <curl/curl.h>
+
+#include "wputility.h"
+#include "wpsettings.h"
 
 struct MemoryStruct {
 	char *memory;
@@ -62,12 +50,6 @@ enum
 } ;
 
 extern struct settings wpl_settings;
-
-size_t
-WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
-
-xmlXPathObjectPtr
-getnodeset (xmlDocPtr doc, xmlChar *xpath);
 
 GtkWidget *create_view_and_model ();
 

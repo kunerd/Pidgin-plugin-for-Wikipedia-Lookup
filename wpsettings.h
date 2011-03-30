@@ -21,18 +21,29 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WPLOOKUP_H
-#define WPLOOKUP_H
+#ifndef WP_SETTINGS_H
+#define WP_SETTINGS_H
 
-#define WPLOOKUP_PLUGIN_ID "gtk-hendrik_kunert-wikipedia-lookup"
-#define PURPLE_PLUGINS
+#define WIKIPEDIA_PATH 				"/wiki/"
 
-#include <pidgin.h>
-#include <libpurple/version.h>
-#include <pidgin/gtkplugin.h>
+#include <glib.h>
+#include <glib/gprintf.h>
+#include <gtkutils.h>
+#include <libxml/xpath.h>
+#include <string.h>
 
-PurplePlugin *wplookup_plugin_handle = NULL;
+#include "wputility.h"
 
-struct settings wpl_settings;
+struct settings
+{
+	guchar *wikipedia_search_url;
+	guchar *language;
+};
+
+extern struct settings wpl_settings;
+
+void wpsettings_save_settings();
+void wpsettings_load_settings();
+void wpsettings_change_settings(guchar *name, guchar *url);
 
 #endif

@@ -22,132 +22,11 @@
  */
 
 #include "wplookup.h"
+#include "wpview.h"
+#include "wpsettings.h"
 #include "wikiinfo.h"
 
 #include "wpconf.h"
-
-static void wpl_save_settings()
-{
-	gchar *filename = NULL;
-	xmlDocPtr doc = NULL;       	/* document pointer */
-    xmlNodePtr root_node = NULL, 
-				url_node = NULL;	/* node pointers */
-	
-    /* 
-     * Creates a new document, a node and set it as a root node
-     */
-    doc = xmlNewDoc(BAD_CAST "1.0");
-    root_node = xmlNewNode(NULL, BAD_CAST "settings");
-    xmlDocSetRootElement(doc, root_node);
-
-    /* 
-     * xmlNewChild() creates a new node, which is "attached" as child node
-     * of root_node node. 
-     */
-    url_node = xmlNewChild(root_node, NULL, BAD_CAST "url",
-                BAD_CAST wpl_settings.wikipedia_search_url);
-	
-    xmlNewProp(url_node, BAD_CAST "language", BAD_CAST wpl_settings.language);
-
-    /* 
-     * Dumping document to stdio or file
-     */
-	filename = g_build_filename(purple_user_dir(),"wpl_settings.xml",NULL);
-    xmlSaveFormatFileEnc(filename, doc, "UTF-8", 1);
-
-	g_free(filename);
-
-    /*free the document */
-    xmlFreeDoc(doc);
-
-    /*
-     *Free the global variables that may
-     *have been allocated by the parser.
-     */
-    xmlCleanupParser();
-}
-
-static void wpl_load_settings()
-{	
-	gchar *filename = NULL;
-	xmlDocPtr doc = NULL;
-	xmlChar *xpathUrl = (xmlChar*) "/settings/url";
-	xmlXPathObjectPtr result;
-
-	filename = g_build_filename(purple_user_dir(),"wpl_settings.xml",NULL);
-	doc = xmlReadFile(filename, NULL, 0);
-	g_free(filename);
-	
-    if (doc == NULL) {
-    	// set default, if no settings exist
-    	wpl_set_url((guchar*)"English", (guchar*)"http://en.wikipedia.org");
-		return;
-	}
-
-	result = getnodeset (doc, xpathUrl);
-	if(result)
-	{
-		wpl_settings.language = xmlGetProp(result->nodesetval->nodeTab[0], (const xmlChar*)"language");
-		wpl_settings.wikipedia_search_url = xmlNodeListGetString(doc, result->nodesetval->nodeTab[0]->xmlChildrenNode, 1);
-		xmlXPathFreeObject (result);
-	}
-
-    /*free the document */
-    xmlFreeDoc(doc);
-
-    /*
-     *Free the global variables that may
-     *have been allocated by the parser.
-     */
-    xmlCleanupParser();
-
-}
-
-static void show_wikipedia(guchar *search_text)
-{
-	guchar *search_url = NULL;
-	int size = 0;
-
-	size = strlen((gchar*)wpl_settings.wikipedia_search_url)+strlen((gchar*)search_text)+1;
-	
-	search_url = (guchar *) malloc(size*sizeof(guchar));
-	if(search_url != NULL)
-	{
-		g_sprintf((gchar*)search_url,"%s%s", (gchar*)wpl_settings.wikipedia_search_url, search_text);
-		purple_notify_uri(wplookup_plugin_handle, (gchar*)search_url);
-	}
-	if(search_text != NULL)
-		g_free(search_text);
-	if(search_url != NULL)
-		g_free(search_url);
-}
-
-static void menu_popup(GtkTextView *text_view, GtkMenu *menu)
-{
-	GtkTextBuffer *buffer = NULL;
-	GtkWidget *menu_entry = NULL;
-	guchar *search_text = NULL;
-	GtkTextIter start_selection;
-	GtkTextIter end_selection;
-    
-  	buffer = gtk_text_view_get_buffer(text_view);
-  	
-  	// somthing selected?
-  	if(gtk_text_buffer_get_selection_bounds(buffer, &start_selection, &end_selection))
-  	{
-		  /* get selected text */
-		  search_text = (guchar*)gtk_text_buffer_get_text(buffer, &start_selection, &end_selection, FALSE);
-		  
-		  /* add menu entry to popup menuy */
-		  menu_entry = gtk_menu_item_new_with_label("Wikipedia");
-		  gtk_menu_append(GTK_MENU(menu),menu_entry);
-		  
-		  /* Attach the callback functions to the activate signal */
-		  g_signal_connect_swapped( GTK_OBJECT(menu_entry), "activate", GTK_SIGNAL_FUNC(show_wikipedia), (gpointer) search_text);
-
-		  gtk_widget_show(menu_entry);
-	}
-}
 
 static void wplookup_attach_conv(PurpleConversation *conv){
   PidginConversation *gtkconv;
@@ -156,20 +35,20 @@ static void wplookup_attach_conv(PurpleConversation *conv){
   gtkconv = PIDGIN_CONVERSATION(conv);
   
   view = GTK_TEXT_VIEW(gtkconv->imhtml);
-  g_signal_connect(G_OBJECT(view),"populate-popup", G_CALLBACK(menu_popup), NULL);
+  g_signal_connect(G_OBJECT(view),"populate-popup", G_CALLBACK(wpview_right_click_popup), NULL);
   
   view = GTK_TEXT_VIEW(gtkconv->entry);
-  g_signal_connect(G_OBJECT(view),"populate-popup", G_CALLBACK(menu_popup), NULL);
+  g_signal_connect(G_OBJECT(view),"populate-popup", G_CALLBACK(wpview_right_click_popup), NULL);
 }
 
 static void wplookup_remove_from_conv(PidginConversation *gtkconv){
   GtkTextView *view;
   
   view = GTK_TEXT_VIEW(gtkconv->imhtml);
-  g_signal_handlers_disconnect_matched(G_OBJECT(view),G_SIGNAL_MATCH_FUNC, 0, 0, NULL, G_CALLBACK(menu_popup), NULL);
+  g_signal_handlers_disconnect_matched(G_OBJECT(view),G_SIGNAL_MATCH_FUNC, 0, 0, NULL, G_CALLBACK(wpview_right_click_popup), NULL);
   
   view = GTK_TEXT_VIEW(gtkconv->entry);
-  g_signal_handlers_disconnect_matched(G_OBJECT(view),G_SIGNAL_MATCH_FUNC, 0, 0, NULL, G_CALLBACK(menu_popup), NULL);
+  g_signal_handlers_disconnect_matched(G_OBJECT(view),G_SIGNAL_MATCH_FUNC, 0, 0, NULL, G_CALLBACK(wpview_right_click_popup), NULL);
 }
 
 //Function is called on loading of the plugin
@@ -181,7 +60,7 @@ plugin_load(PurplePlugin *plugin) {
     conv_handle = purple_conversations_get_handle();
 
 	/* load settings */
-	wpl_load_settings();
+	wpsettings_load_settings();
 
     /* Attach to existing conversations */
     for (convs = purple_get_conversations(); convs != NULL; convs = convs->next)
@@ -205,7 +84,7 @@ plugin_unload(PurplePlugin *plugin){
   conv_handle = purple_conversations_get_handle();
 
   /*save settings */
-  wpl_save_settings();
+  wpsettings_save_settings();
 
   /* free wikipedia_search_url */
 	if(wpl_settings.wikipedia_search_url != NULL)

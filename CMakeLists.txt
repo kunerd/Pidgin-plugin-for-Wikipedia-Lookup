@@ -7,6 +7,12 @@ include_directories(${PROJECT_BINARY_DIR})
 set (wplookup_VERSION_MAJOR 0)
 set (wplookup_VERSION_MINOR 1)
 set (wplookup_VERSION_PATCH 1)
+
+set (SOURCE_FILES wplookup.c
+					wikiinfo.c
+					wpsettings.c
+					wpview.c
+					wputility.c)
  
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -35,7 +41,7 @@ include_directories(${PIDGIN_INCLUDE_DIRS})
 find_package(GTK2 REQUIRED)
 find_package(CURL REQUIRED)
 
-add_library(wplookup SHARED wplookup.c wikiinfo.c)
+add_library(wplookup SHARED ${SOURCE_FILES})
 
 target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES})
 #target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} xml2)
