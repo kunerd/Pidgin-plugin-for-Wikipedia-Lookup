@@ -226,7 +226,7 @@ static GtkWidget *
 get_config_frame(PurplePlugin *plugin)
 {
 	GtkWidget *ret, *vbox, *win, *language_list;
-
+	
 	ret = gtk_vbox_new(FALSE, PIDGIN_HIG_CAT_SPACE);
 	gtk_container_set_border_width (GTK_CONTAINER(ret), PIDGIN_HIG_BORDER);
 
@@ -243,12 +243,11 @@ get_config_frame(PurplePlugin *plugin)
 			GTK_POLICY_ALWAYS);
 
 	gtk_widget_show(win);
+	
+	language_list = create_view_and_model();	
+	gtk_container_add(GTK_CONTAINER(win), language_list);	
 
-	language_list = create_view_and_model();
-	
-	gtk_container_add(GTK_CONTAINER(win), language_list);
 	gtk_widget_show(language_list);
-	
 
 	gtk_widget_show_all(ret);
 	return ret;

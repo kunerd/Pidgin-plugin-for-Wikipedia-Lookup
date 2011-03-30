@@ -21,7 +21,7 @@ add_definitions(`pkg-config pidgin --cflags`) #...should be changed
 #add_definitions(`curl-config --cflags`)
 #add_definitions(`pkg-config pidgin --libs`)
 #add_definitions(`pkg-config gtk+-2.0 --libs`)
-add_definitions(`pkg-config --variable=libdir`)
+#add_definitions(`pkg-config --variable=libdir`)
 #add_definitions(`curl-config --libs`)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/findLibrary")
@@ -40,18 +40,18 @@ add_library(wplookup SHARED wplookup.c wikiinfo.c)
 target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES})
 #target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} xml2)
 
-install (TARGETS wplookup LIBRARY DESTINATION lib64/pidgin)
+install (TARGETS wplookup LIBRARY DESTINATION ~/.purple/plugins)
 
 add_custom_target(valgrind COMMAND valgrind --leak-check=summary --show-reachable=yes --tool=memcheck --leak-resolution=high --num-callers=20 --trace-children=no --child-silent-after-fork=yes --track-fds=yes pidgin -d >valgrind.log 2>&1)
 
 INCLUDE(InstallRequiredSystemLibraries)
 
-SET(CPACK_GENERATOR DEB TGZ RPM)
+SET(CPACK_GENERATOR DEB TGZ)
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "wplookup")
-SET(CPACK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+SET(CPACK_INSTALL_PREFIX "/lib64/pidgin")
 ##SET(CPACK_INSTALL_CMAKE_PROJECTS "$ENV{HOME}/.purple/plugins;wplookup;ALL;/")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Hendrik Kunert")
-SET(CPACK_PACKAGE_VENDOR "Hendrik Kunert")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Hendrik Kunert <kunerd@users.sourceforge.net>")
+SET(CPACK_PACKAGE_VENDOR "Hendrik Kunert <kunerd@users.sourceforge.net>")
 SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 SET(CPACK_PACKAGE_VERSION_MAJOR "${wplookup_VERSION_MAJOR}")

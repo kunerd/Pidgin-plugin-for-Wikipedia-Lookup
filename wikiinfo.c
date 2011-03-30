@@ -88,7 +88,7 @@ getnodeset (xmlDocPtr doc, xmlChar *xpath){
 	return result;
 }
 
-GtkTreeModel *getWikipediaLanguages()
+GtkTreeModel *getWikipediaLanguages(GtkTreeIter *sel_iter)
 {
 	int i = 0;
 	CURL *curl_handle=NULL;
@@ -171,6 +171,12 @@ GtkTreeModel *getWikipediaLanguages()
 										  COL_NAME, name,
 										  COL_URL, url,
 										  -1);
+
+					if(strcmp((gchar*)name,"Deutsch")==0)
+					{
+						/*preselection*/
+						*sel_iter=iter;
+					}
 					
 					xmlFree(url);
 					xmlFree(name);
@@ -230,7 +236,8 @@ create_view_and_model ()
   GtkCellRenderer     *renderer = NULL;
   GtkTreeModel        *model = NULL;
   GtkWidget           *view = NULL;
-  GtkTreeSelection  *selection;
+  GtkTreeSelection    *selection = NULL;
+	GtkTreeIter		  sel_iter;
 
   view = gtk_tree_view_new ();
   gtk_widget_set_size_request(view, -1, 200);
@@ -255,17 +262,23 @@ create_view_and_model ()
                                                "text", COL_URL,
                                                NULL);
 
-  model = getWikipediaLanguages();
+	model = getWikipediaLanguages(&sel_iter);
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
     gtk_tree_selection_set_select_function(selection, view_selection_func, NULL, NULL);
 
-  gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)),
+  	gtk_tree_selection_set_mode(selection,
                               GTK_SELECTION_SINGLE);
 
-	
-  gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
 
+	/* preselection */
+	gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), &sel_iter);
+	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(view),
+	                             gtk_tree_model_get_path(model, &sel_iter),
+	                             NULL,
+	                             TRUE,0.5,0);
+	
   /* The tree view has acquired its own reference to the
    *  model, so we can drop ours. That way the model will
    *  be freed automatically when the tree view is destroyed */
