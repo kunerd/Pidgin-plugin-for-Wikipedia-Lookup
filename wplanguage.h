@@ -4,14 +4,14 @@
  *					  typed words on Wikipedia.
  *
  *  Copyright (C) 2011 Hendrik Kunert kunerd@users.sourceforge.net
- *
+	 *
  *  This file is part of wplookup.
  *
  *  wplookup is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 2 of the License, or
  *  (at your option) any later version.
- *
+	 *
  *  Foobar is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -44,17 +44,15 @@ struct MemoryStruct {
 
 enum
 {
-  COL_NAME = 0,
-  COL_URL,
-  NUM_COLS
+	COL_NAME = 0,
+	COL_URL,
+	NUM_COLS
 } ;
 
 extern struct settings wpl_settings;
 
-GtkWidget *create_view_and_model ();
+GtkWidget *wplanguage_create_view_and_model();
 
-GtkTreeModel *getWikipediaLanguages();
-
-void wpl_set_url(guchar *name, guchar *url);
+GtkTreeModel *wplanguage_get_wikipedia_languages();
 
 #endif

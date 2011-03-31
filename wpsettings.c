@@ -84,7 +84,7 @@ void wpsettings_load_settings()
 	gchar *filename = NULL;
 	xmlDocPtr doc = NULL;
 	xmlChar *xpathUrl = (xmlChar*) "/settings/url";
-	xmlXPathObjectPtr result;
+	xmlXPathObjectPtr result = NULL;
 
 	filename = g_build_filename(purple_user_dir(),"wpl_settings.xml",NULL);
 	doc = xmlReadFile(filename, NULL, 0);

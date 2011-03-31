@@ -6,10 +6,10 @@ include_directories(${PROJECT_BINARY_DIR})
 
 set (wplookup_VERSION_MAJOR 0)
 set (wplookup_VERSION_MINOR 1)
-set (wplookup_VERSION_PATCH 1)
+set (wplookup_VERSION_PATCH 2)
 
 set (SOURCE_FILES wplookup.c
-					wikiinfo.c
+					wplanguage.c
 					wpsettings.c
 					wpview.c
 					wputility.c)
@@ -64,4 +64,13 @@ SET(CPACK_PACKAGE_VERSION_MAJOR "${wplookup_VERSION_MAJOR}")
 SET(CPACK_PACKAGE_VERSION_MINOR "${wplookup_VERSION_MINOR}")
 SET(CPACK_PACKAGE_VERSION_PATCH "${wplookup_VERSION_PATCH}")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
+
+set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
+				".*~"
+				"\\\\.git*"
+				"\\\\.anjuta*"
+				"\\\\.task"
+				"\\\\build/*")
+
+
 INCLUDE(CPack)

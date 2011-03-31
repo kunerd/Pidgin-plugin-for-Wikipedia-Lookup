@@ -24,7 +24,7 @@
 #include "wplookup.h"
 #include "wpview.h"
 #include "wpsettings.h"
-#include "wikiinfo.h"
+#include "wplanguage.h"
 
 #include "wpconf.h"
 
@@ -86,7 +86,11 @@ plugin_unload(PurplePlugin *plugin){
   /*save settings */
   wpsettings_save_settings();
 
-  /* free wikipedia_search_url */
+	/* free language */
+	if(wpl_settings.language != NULL)
+		g_free(wpl_settings.language);
+
+	/* free wikipedia_search_url */
 	if(wpl_settings.wikipedia_search_url != NULL)
 		g_free(wpl_settings.wikipedia_search_url);
 
@@ -124,7 +128,7 @@ get_config_frame(PurplePlugin *plugin)
 
 	gtk_widget_show(win);
 	
-	language_list = create_view_and_model();	
+	language_list = wplanguage_create_view_and_model();	
 	gtk_container_add(GTK_CONTAINER(win), language_list);	
 
 	gtk_widget_show(language_list);
