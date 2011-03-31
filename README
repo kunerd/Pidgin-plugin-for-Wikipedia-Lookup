@@ -2,24 +2,29 @@ Wikipedia Lookup Pidgin Plugin
 
 Building and Installation
 -------------------------
-To build the plug-in run:
-	$ make
-	
-To install the plug-in in YOUR pidgin default directory run:
-	$ make install
-	
-After you have installed the plugin, open Pidgin and choose 
-it from the Plugins Dialog.
+First cd into source directory and  create a new directory. Now cd into the new
+directory and run the following comands:
 
+$ cmake ..
+$ make
+
+To install the plugin in Pidgin default directory (/user/.purple/plugins) run:
+
+$ make install
+
+Please notice, that the build-script is at work and might not work in some cases.
+If that happens, please write a bug report or an mail. 
 
 
 How to use
 ----------
+First add the plugin (Tools->Plugins), call the Settings dialog and choose your 
+preferred Wikipedia language.
 Open a conversation window and type in a word. Now select the
 word, open the context-menu (right-click) and choose menu entry
 Wikipedia.
-More functions coming soon. 
 
+More functions coming soon. 
 
 
 Support
@@ -30,7 +35,7 @@ http://sourceforge.net/projects/pidginpluginfor/
 Bug-Report
 ----------
 Please create a new Ticket at https://sourceforge.net/apps/trac/pidginpluginfor/newticket?type=bug.
-Or write a mail to:
+Or write an email to:
 kunerd@users.sourceforge.net
 
 
