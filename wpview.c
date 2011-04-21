@@ -9,7 +9,7 @@
  *
  *  wplookup is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
+ *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
  *  Foobar is distributed in the hope that it will be useful,
@@ -48,7 +48,18 @@ static void wpview_show_in_browser(guchar *search_text)
 		g_free(search_url);
 }
 
- /* Function : wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu)
+ /* Function : void wpview_open_preview_window()
+ 	-----------------------------------------------------------
+    Input    : void
+    Output   : void
+    Procedure: open Wikipedia article in preview window
+ */
+static void wpview_open_preview_window(guchar *search_text)
+{
+	
+}
+
+/* Function : wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu)
  	-----------------------------------------------------------
     Input    : 	GtkTextView *text_view 	-> gtk text view that is right clicked
 				GtkMenu *menu 			-> displayed menu for appending own menu entry
