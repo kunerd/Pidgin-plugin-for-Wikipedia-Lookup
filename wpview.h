@@ -24,15 +24,23 @@
 #ifndef WP_VIEW_H
 #define WP_VIEW_H
 
+#define WPL_WIKIPEDIA_ARTICLE_PATH	"http://de.wikipedia.org/w/api.php?action=query&prop=revisions&titles=%s&rvprop=content&rvsection=0&rvparse&format=xml"
+#define WPL_USER_AGENT				"Mozilla/4.0"
+
 #include <string.h>
 #include <gtk/gtk.h>
 #include <pidgin.h>
+#include <curl/curl.h>
+#include <webkit/webkit.h>
+#include <stdio.h>
 
 #include "wpsettings.h"
+#include "wputility.h"
 
 extern struct settings wpl_settings;
 extern PurplePlugin *wplookup_plugin_handle;
 
+//void wpview_open_preview_window(GtkWidget *parent);
 void wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu);
 
 #endif

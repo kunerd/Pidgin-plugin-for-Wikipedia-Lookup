@@ -29,18 +29,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <gtk/gtk.h>
 #include <libxml/xpath.h>
 #include <curl/curl.h>
 
 #include "wputility.h"
 #include "wpsettings.h"
-
-struct MemoryStruct {
-	char *memory;
-	size_t size;
-};
 
 enum
 {

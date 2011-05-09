@@ -54,3 +54,31 @@ wputility_get_nodeset (xmlDocPtr doc, xmlChar *xpath){
 	}
 	return result;
 }
+
+/* Function : wplanguage_write_memory_callback(void *ptr, size_t size, size_t nmemb, void *data)
+ 	-----------------------------------------------------------
+    Input    : 	void *ptr, size_t size, size_t nmemb, void *data
+ 
+    Output   : 	size_t
+	 
+    Procedure: 	callback for curl to allocate memory and save xml
+ */
+size_t
+wplanguage_write_memory_callback(void *ptr, size_t size, size_t nmemb, void *data)
+{
+	size_t realsize = size * nmemb;
+	struct MemoryStruct *mem = (struct MemoryStruct *)data;
+
+	mem->memory = realloc(mem->memory, mem->size + realsize + 1);
+	if (mem->memory == NULL) {
+		/* out of memory! */ 
+		printf("not enough memory (realloc returned NULL)\n");
+		exit(EXIT_FAILURE);
+	}
+
+	memcpy(&(mem->memory[mem->size]), ptr, realsize);
+	mem->size += realsize;
+	mem->memory[mem->size] = 0;
+
+	return realsize;
+}

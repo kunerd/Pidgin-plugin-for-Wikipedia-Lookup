@@ -38,12 +38,20 @@ include_directories(${LIBXML2_INCLUDE_DIRS})
 find_package(PIDGIN REQUIRED)
 include_directories(${PIDGIN_INCLUDE_DIRS})
 
+find_package(WEBKIT REQUIRED)
+include_directories(${WEBKIT_INCLUDE_DIRS})
+
+set(LIBSOUP2_MIN_VERSION true)
+set(LIBSOUP24_MIN_VERSION true)
+find_package(LibSoup2 REQUIRED)
+include_directories(${LIBSOUP24_INCLUDE_DIRS})
+
 find_package(GTK2 REQUIRED)
 find_package(CURL REQUIRED)
 
 add_library(wplookup SHARED ${SOURCE_FILES})
 
-target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES})
+target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBSOUP24_LIBRARIES} ${WEBKIT_LIBRARIES})
 #target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} xml2)
 
 install (TARGETS wplookup LIBRARY DESTINATION ~/.purple/plugins)

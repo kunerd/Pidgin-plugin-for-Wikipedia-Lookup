@@ -24,9 +24,24 @@
 #ifndef WP_UTILITY_H
 #define WP_UTILITY_H
 
+#include <string.h>
+#include <gtk/gtk.h>
 #include <libxml/xpath.h>
+
+struct MemoryStruct {
+	char *memory;
+	size_t size;
+};
+
+struct PreviewData {
+	GtkWidget *parent_window;
+	gchar *search_text;
+};
 
 xmlXPathObjectPtr
 wputility_get_nodeset (xmlDocPtr doc, xmlChar *xpath);
+
+size_t
+wplanguage_write_memory_callback(void *ptr, size_t size, size_t nmemb, void *data);
 
 #endif
