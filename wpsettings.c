@@ -143,7 +143,7 @@ void wpsettings_change_settings(guchar *name, guchar *url)
 	}
 
 	/* url */
-	size = strlen((gchar*)url)+strlen(WIKIPEDIA_PATH)+1;
+	size = strlen((gchar*)url)+1;
 	if(wpl_settings.wikipedia_search_url != NULL)
 		g_free(wpl_settings.wikipedia_search_url);
 
@@ -151,6 +151,6 @@ void wpsettings_change_settings(guchar *name, guchar *url)
 	
 	if(wpl_settings.wikipedia_search_url != NULL)
 	{
-		g_sprintf((gchar*)wpl_settings.wikipedia_search_url,"%s%s", (gchar*)url, WIKIPEDIA_PATH);
+		g_sprintf((gchar*)wpl_settings.wikipedia_search_url,"%s", (gchar*)url);
 	}
 }

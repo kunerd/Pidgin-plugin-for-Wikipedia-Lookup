@@ -122,13 +122,12 @@ void wpview_open_preview_window(void *preview_data)
 	struct PreviewData *data = (struct PreviewData *)preview_data;
 	
 	/* create search path */
-	size = strlen((gchar*)WPL_WIKIPEDIA_ARTICLE_PATH)+strlen(data->search_text)+1;
+	size = strlen((gchar*)wpl_settings.wikipedia_search_url) + strlen((gchar*)WPL_WIKIPEDIA_API_PATH)+strlen(data->search_text)+1;
 	
 	search_url = (gchar *) malloc(size*sizeof(gchar));
 	if(search_url != NULL)
 	{
-		g_sprintf((gchar*)search_url, WPL_WIKIPEDIA_ARTICLE_PATH, data->search_text);
-		printf(search_url);
+		g_sprintf((gchar*)search_url, WPL_WIKIPEDIA_API_PATH, wpl_settings.wikipedia_search_url, data->search_text);
 	}	
 	
 	/* Create the widgets */
@@ -187,6 +186,9 @@ void wpview_open_preview_window(void *preview_data)
 
 	if(search_url != NULL)
 		g_free(search_url);
+
+	if(data != NULL)
+		free(data);
 
 }
 

@@ -24,7 +24,7 @@
 #ifndef WP_VIEW_H
 #define WP_VIEW_H
 
-#define WPL_WIKIPEDIA_ARTICLE_PATH	"http://de.wikipedia.org/w/api.php?action=query&prop=revisions&titles=%s&rvprop=content&rvsection=0&rvparse&format=xml"
+#define WPL_WIKIPEDIA_API_PATH		"%s/w/api.php?action=query&prop=revisions&titles=%s&rvprop=content&rvsection=0&rvparse&format=xml"
 #define WPL_USER_AGENT				"Mozilla/4.0"
 
 #include <string.h>
