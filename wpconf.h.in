@@ -2,5 +2,8 @@
 #define wplookup_VERSION_MINOR @wplookup_VERSION_MINOR@
 #define wplookup_VERSION_PATCH @wplookup_VERSION_PATCH@
 
+#if (wplookup_VERSION_PATCH == 0)
+#define VERSION_NUMBER "@wplookup_VERSION_MAJOR@.@wplookup_VERSION_MINOR@"
+#else
 #define VERSION_NUMBER "@wplookup_VERSION_MAJOR@.@wplookup_VERSION_MINOR@.@wplookup_VERSION_PATCH@"
-
+#endif

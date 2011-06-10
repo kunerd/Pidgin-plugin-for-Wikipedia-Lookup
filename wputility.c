@@ -82,3 +82,19 @@ wplanguage_write_memory_callback(void *ptr, size_t size, size_t nmemb, void *dat
 
 	return realsize;
 }
+
+gchar * wputility_get_uri(gchar *path, gchar *filename)
+{
+	GFile *dir = NULL;
+	GFile *file = NULL;
+	gchar *uri = NULL;
+
+	dir = g_file_new_for_path(path);
+	file = g_file_get_child(dir, filename);
+	uri = g_file_get_uri (file);
+
+	g_object_unref(file);
+	g_object_unref(dir);
+
+	return uri;
+}

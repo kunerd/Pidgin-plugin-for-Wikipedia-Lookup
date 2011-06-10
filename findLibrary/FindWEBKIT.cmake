@@ -11,9 +11,9 @@ set(WEBKIT_DEFINITIONS ${PC_WEBKIT_CFLAGS_OTHER})
 
 find_path(WEBKIT_INCLUDE_DIR webkit/webkit.h
           HINTS ${PC_WEBKIT_INCLUDEDIR} ${PC_WEBKIT_INCLUDE_DIRS}
-          PATH_SUFFIXES webkit)
+          PATH_SUFFIXES webkit-1.0)
 
-find_library(WEBKIT_LIBRARY NAMES webkitgtk-1.0
+find_library(WEBKIT_LIBRARY NAMES webkit-1.0
              HINTS ${PC_WEBKIT_LIBDIR} ${PC_WEBKIT_LIBRARY_DIRS} )
 
 set(WEBKIT_LIBRARIES ${WEBKIT_LIBRARY} )
@@ -25,4 +25,4 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Webkit  DEFAULT_MSG
                                   WEBKIT_LIBRARIES WEBKIT_INCLUDE_DIR)
 
-mark_as_advanced(WEBKIT_INCLUDE_DIR )
+mark_as_advanced(WEBKIT_INCLUDE_DIR WEBKIT_LIBRARIES)

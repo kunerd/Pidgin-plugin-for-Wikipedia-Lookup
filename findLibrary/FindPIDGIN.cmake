@@ -6,17 +6,17 @@
 #  PIDGIN_DEFINITIONS - Compiler switches required for using LibXml2
 
 find_package(PkgConfig)
-pkg_check_modules(PC_PIDGIN QUIET pidgin/pidgin.h)
+pkg_check_modules(PC_PIDGIN QUIET pidgin)
 set(PC_PIDGIN_DEFINITIONS ${PC_PIDGIN_CFLAGS_OTHER})
 
-find_path(PIDGIN_INCLUDE_DIR pidgin
+find_path(PIDGIN_INCLUDE_DIR pidgin.h
           HINTS ${PC_PIDGIN_INCLUDEDIR} ${PC_PIDGIN_INCLUDE_DIRS}
-          PATH_SUFFIXES pidgin )
+          PATH_SUFFIXES pidgin)
 
 #find_library(PIDGIN_LIBRARY NAMES pidgin
 #             HINTS ${PC_PIDGIN_LIBDIR} ${PC_PIDGIN_LIBRARY_DIRS} )
 
-#set(PIDGIN_LIBRARIES ${PIDGIN_LIBRARY} )
+set(PIDGIN_LIBRARIES ${PIDGIN_LIBRARY} )
 set(PIDGIN_INCLUDE_DIRS ${PIDGIN_INCLUDE_DIR} )
 
 include(FindPackageHandleStandardArgs)
@@ -25,4 +25,4 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(pidgin DEFAULT_MSG
                                    PIDGIN_INCLUDE_DIR)
 
-mark_as_advanced(PIDGIN_INCLUDE_DIR PIDGIN_LIBRARY )
+mark_as_advanced(PIDGIN_INCLUDE_DIR)

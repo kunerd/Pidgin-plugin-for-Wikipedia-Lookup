@@ -24,13 +24,12 @@
 #ifndef WP_SETTINGS_H
 #define WP_SETTINGS_H
 
-#define WIKIPEDIA_PATH 				"/wiki/"
-
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <gtkutils.h>
 #include <libxml/xpath.h>
 #include <string.h>
+#include <purple.h>
 
 #include "wputility.h"
 

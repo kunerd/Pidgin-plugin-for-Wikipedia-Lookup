@@ -5,10 +5,10 @@ include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
 set (wplookup_VERSION_MAJOR 0)
-set (wplookup_VERSION_MINOR 1)
-set (wplookup_VERSION_PATCH 2)
+set (wplookup_VERSION_MINOR 2)
+set (wplookup_VERSION_PATCH 0)
 
-set (SOURCE_FILES wplookup.c
+set (SOURCE_FILES 
 					wplanguage.c
 					wpsettings.c
 					wpview.c
@@ -21,15 +21,6 @@ configure_file (
   "${PROJECT_BINARY_DIR}/wpconf.h"
   )
 
-
-add_definitions(`pkg-config pidgin --cflags`) #...should be changed
-#add_definitions(`pkg-config gtk+-2.0 --cflags`)
-#add_definitions(`curl-config --cflags`)
-#add_definitions(`pkg-config pidgin --libs`)
-#add_definitions(`pkg-config gtk+-2.0 --libs`)
-#add_definitions(`pkg-config --variable=libdir`)
-#add_definitions(`curl-config --libs`)
-
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/findLibrary")
 
 find_package(LIBXML2 REQUIRED)
@@ -37,6 +28,9 @@ include_directories(${LIBXML2_INCLUDE_DIRS})
 
 find_package(PIDGIN REQUIRED)
 include_directories(${PIDGIN_INCLUDE_DIRS})
+
+find_package(PURPLE REQUIRED)
+include_directories(${PURPLE_INCLUDE_DIRS})
 
 find_package(WEBKIT REQUIRED)
 include_directories(${WEBKIT_INCLUDE_DIRS})
@@ -47,12 +41,18 @@ find_package(LibSoup2 REQUIRED)
 include_directories(${LIBSOUP24_INCLUDE_DIRS})
 
 find_package(GTK2 REQUIRED)
+include_directories(${GTK2_INCLUDE_DIRS})
+
 find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIRS})
 
-add_library(wplookup SHARED ${SOURCE_FILES})
+add_executable(standalone main-window.c ${SOURCE_FILES})
 
-target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBSOUP24_LIBRARIES} ${WEBKIT_LIBRARIES})
-#target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} xml2)
+target_link_libraries(standalone ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBSOUP24_LIBRARIES} ${WEBKIT_LIBRARIES} ${PIDGIN_LIBRARIES})
+
+add_library(wplookup SHARED wplookup.c ${SOURCE_FILES})
+
+target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBSOUP24_LIBRARIES} ${WEBKIT_LIBRARIES} ${PIDGIN_LIBRARIES})
 
 install (TARGETS wplookup LIBRARY DESTINATION ~/.purple/plugins)
 

@@ -24,12 +24,15 @@
 #ifndef WP_VIEW_H
 #define WP_VIEW_H
 
-#define WPL_WIKIPEDIA_API_PATH		"%s/w/api.php?action=query&prop=revisions&titles=%s&rvprop=content&rvsection=0&rvparse&format=xml"
+#define WPL_WIKIPEDIA_API_PATH		"%s/w/api.php?action=parse&page=%s&section=0&format=xml&redirects"
+#define WPL_WIKIPEDIA_PATH 			"/wiki/"
 #define WPL_USER_AGENT				"Mozilla/4.0"
+#define WPL_PAGE_TEMPLATE "<html><head><title>preview</title></head><body class=\"mediawiki ltr capitalize-all-nouns ns-0 ns-subject page-Test skin-vector\"><div id=\"content\"><h1 id=\"firstHeading\" class=\"firstHeading\">%s</h1><div id=\"bodyContent\">%s<div style=\"clear:both\"></div></div></div></body></html>"
 
 #include <string.h>
 #include <gtk/gtk.h>
 #include <pidgin.h>
+#include <purple.h>
 #include <curl/curl.h>
 #include <webkit/webkit.h>
 #include <stdio.h>
@@ -38,9 +41,8 @@
 #include "wputility.h"
 
 extern struct settings wpl_settings;
-extern PurplePlugin *wplookup_plugin_handle;
+//extern PurplePlugin *wplookup_plugin_handle;
 
-//void wpview_open_preview_window(GtkWidget *parent);
 void wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu);
 
 #endif

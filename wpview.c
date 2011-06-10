@@ -29,12 +29,12 @@
     Output   : void
     Procedure: open Wikipedia article in standard browser
  */
-static void wpview_show_in_browser(guchar *search_text)
+/*static void wpview_show_in_browser(guchar *search_text)
 {
 	guchar *search_url = NULL;
 	int size = 0;
 
-	size = strlen((gchar*)wpl_settings.wikipedia_search_url)+strlen((gchar*)search_text)+1;
+	size = strlen((gchar*)wpl_settings.wikipedia_search_url)+strlen((gchar*)WPL_WIKIPEDIA_PATH)+strlen((gchar*)search_text)+1;
 	
 	search_url = (guchar *) malloc(size*sizeof(guchar));
 	if(search_url != NULL)
@@ -46,20 +46,20 @@ static void wpview_show_in_browser(guchar *search_text)
 		g_free(search_text);
 	if(search_url != NULL)
 		g_free(search_url);
-}
+}*/
 
-static gchar * get_wikipedia_article(gchar *search_url)
+static gchar* get_wikipedia_article(gchar *search_url)
 {
 	CURL *curl_handle=NULL;
 	xmlDoc *doc = NULL;
 	xmlXPathObjectPtr result = NULL;
-	xmlChar *xpathName = (xmlChar*) "/api/query/pages/page/revisions/rev";
-	xmlNodeSetPtr nodeset = NULL;
+	xmlChar *xpathName = (xmlChar*) "/api/parse/text";
 	xmlChar *content = NULL;
+	xmlNodeSetPtr nodeset = NULL;
 	struct MemoryStruct chunk;
 
-	chunk.memory = malloc(1);  /* will be grown as needed by the realloc above */ 
-	chunk.size = 0;    /* no data at this point */
+	chunk.memory = malloc(1);
+	chunk.size = 0;
 
 	curl_global_init(CURL_GLOBAL_NOTHING);
 
@@ -103,26 +103,40 @@ static gchar * get_wikipedia_article(gchar *search_url)
 	}
 
 	xmlFreeDoc(doc);
-
-	xmlCleanupParser();
 	
 	if(chunk.memory)
 		free(chunk.memory);
 	
 	return (gchar*)content;
-	
+
+}
+
+static gchar* wpview_create_webpage(gchar *head, gchar *content) {
+	gchar *webpage = NULL;
+	int size;
+
+	size = strlen((gchar*)content)+strlen((gchar*)head)+strlen(WPL_PAGE_TEMPLATE)+1;
+	webpage = (gchar *) malloc(size*sizeof(gchar));
+	if(webpage != NULL)
+	{
+		g_sprintf((gchar*)webpage, WPL_PAGE_TEMPLATE, head, content);
+	}
+
+	return webpage;
 }
 
 void wpview_open_preview_window(void *preview_data)
 {
 	GtkWidget *win, *dialog, *content_area, *web_view;
 	gchar *search_url = NULL;
-	gchar *content= NULL;
+	gchar *content = NULL;
+	gchar *webpage = NULL;
 	int size = 0;
 	struct PreviewData *data = (struct PreviewData *)preview_data;
+	gchar *uri = NULL;
 	
 	/* create search path */
-	size = strlen((gchar*)wpl_settings.wikipedia_search_url) + strlen((gchar*)WPL_WIKIPEDIA_API_PATH)+strlen(data->search_text)+1;
+	size = strlen((gchar*)wpl_settings.wikipedia_search_url)+strlen((gchar*)WPL_WIKIPEDIA_API_PATH)+strlen(data->search_text)+1;
 	
 	search_url = (gchar *) malloc(size*sizeof(gchar));
 	if(search_url != NULL)
@@ -131,7 +145,7 @@ void wpview_open_preview_window(void *preview_data)
 	}	
 	
 	/* Create the widgets */
-	dialog = gtk_dialog_new_with_buttons ("Message",
+	dialog = gtk_dialog_new_with_buttons ("preview",
                                          GTK_WINDOW(data->parent_window),
                                          GTK_DIALOG_DESTROY_WITH_PARENT,
                                          GTK_STOCK_OK,
@@ -148,37 +162,42 @@ void wpview_open_preview_window(void *preview_data)
 			GTK_POLICY_NEVER,
 			GTK_POLICY_ALWAYS);
 
-	gtk_widget_show(win);
-
+	/* for GtkWebkit */
 	web_view = webkit_web_view_new ();
-	
     gtk_container_add (GTK_CONTAINER (win), web_view);
-
-	   g_signal_connect_swapped (dialog,
+	g_signal_connect_swapped (dialog,
                              "response",
                              G_CALLBACK (gtk_widget_destroy),
                              dialog);
 
 	gtk_container_add (GTK_CONTAINER (content_area), win);
-	gtk_widget_show_all (dialog);
 
-	/*g_object_set (webkit_web_view_get_settings (WEBKIT_WEB_VIEW (web_view)),
-              "user-stylesheet-uri", "file:///home/hendrik/Programmierung/pidgin/preview/load.css", NULL);
-	 */             
 	content = get_wikipedia_article(search_url);
+
+	uri = wputility_get_uri((gchar*)purple_user_dir(), "vector/main-ltr.css");
+	g_object_set (webkit_web_view_get_settings (WEBKIT_WEB_VIEW (web_view)),
+	              "user-stylesheet-uri", uri, NULL);
+	g_free(uri);
+
+	gtk_widget_show_all (dialog);
 
 	if(content!=NULL)
 	{
-		webkit_web_view_load_string (WEBKIT_WEB_VIEW (web_view),
-		                             content,
-		                             "text/html",
-		                             "UTF-8",
-		                             NULL);
+		webpage = wpview_create_webpage(data->search_text, content);
+		if(webpage != NULL)
+		{
+			webkit_web_view_load_string (WEBKIT_WEB_VIEW (web_view),
+										 webpage,
+										 "text/html",
+										 "UTF-8",
+										 "file://");
+			g_free(webpage);
+		}
 		g_free(content);
 	}
 	else {
 			webkit_web_view_load_string (WEBKIT_WEB_VIEW (web_view),
-		                             "<html><body><h1>Fehler</h1><p>Seite nicht gefunden</p></body></html>",
+		                             "<h1>Error</h1> <p> Couldn't find an aticle. </p>",
 		                             "text/html",
 		                             "UTF-8",
 		                             NULL);
@@ -206,7 +225,7 @@ void wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu)
 {
 	GtkTextBuffer *buffer = NULL;
 	GtkWidget *menu_entry = NULL;
-	guchar *search_text = NULL;
+	gchar *search_text = NULL;
 	GtkTextIter start_selection;
 	GtkTextIter end_selection;
 	GtkWidget *parent = NULL;
@@ -221,7 +240,7 @@ void wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu)
 		preview_data = malloc(sizeof(struct PreviewData));
 		  
 		/* get selected text */
-		search_text = (guchar*)gtk_text_buffer_get_text(buffer, &start_selection, &end_selection, FALSE);
+		search_text = (gchar*)gtk_text_buffer_get_text(buffer, &start_selection, &end_selection, FALSE);
 		  
 		/* add menu entry to popup menuy */
 		menu_entry = gtk_menu_item_new_with_label("Wikipedia");
@@ -232,7 +251,7 @@ void wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu)
 
 		parent = gtk_widget_get_toplevel (GTK_WIDGET(text_view));
 
-		preview_data->search_text = search_text;
+		preview_data->search_text = g_uri_escape_string(search_text, NULL, TRUE);
 		preview_data->parent_window = parent;
 		
 		if (gtk_widget_is_toplevel (parent))

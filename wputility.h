@@ -44,4 +44,6 @@ wputility_get_nodeset (xmlDocPtr doc, xmlChar *xpath);
 size_t
 wplanguage_write_memory_callback(void *ptr, size_t size, size_t nmemb, void *data);
 
+gchar * wputility_get_uri(gchar *path, gchar *filename);
+
 #endif
