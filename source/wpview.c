@@ -48,12 +48,12 @@
 		g_free(search_url);
 }*/
 
-static gchar* get_wikipedia_article(gchar *search_url)
+static gchar* get_wikipedia_article(gchar *search_url, gchar **name)
 {
-	CURL *curl_handle=NULL;
 	xmlDoc *doc = NULL;
 	xmlXPathObjectPtr result = NULL;
-	xmlChar *xpathName = (xmlChar*) "/api/parse/text";
+	xmlChar *xpathContent = (xmlChar*) "/api/parse/text";
+	xmlChar *xpathName = (xmlChar*) "/api/parse";
 	xmlChar *content = NULL;
 	xmlNodeSetPtr nodeset = NULL;
 	struct MemoryStruct chunk;
@@ -61,35 +61,21 @@ static gchar* get_wikipedia_article(gchar *search_url)
 	chunk.memory = malloc(1);
 	chunk.size = 0;
 
-	curl_global_init(CURL_GLOBAL_NOTHING);
-
-	/* init the curl session */ 
-	curl_handle = curl_easy_init();
-
-	/* specify URL to get */ 
-	curl_easy_setopt(curl_handle, CURLOPT_URL, search_url);
-
-	/* send all data to this function  */
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, wplanguage_write_memory_callback);
-
-	/* we pass our 'chunk' struct to the callback function */ 
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
-
-	/* some servers don't like requests that are made without a user-agent field, so we provide one */ 
-	curl_easy_setopt (curl_handle, CURLOPT_USERAGENT, WPL_USER_AGENT);
-
-	/* get it! */ 
-	curl_easy_perform(curl_handle);
-
-	/* cleanup curl stuff */ 
-	curl_easy_cleanup(curl_handle);
-
-	/* we're done with libcurl, so clean it up */
-	curl_global_cleanup();
+	wpweb_get_webpage(search_url, (void *)&chunk);
 
 	doc = xmlParseMemory(chunk.memory, chunk.size);
 	if(doc == NULL){
 		printf("no valid xml");
+	}
+
+	result = wputility_get_nodeset (doc, xpathContent);
+
+	if(result != NULL)
+	{
+		nodeset = result->nodesetval;
+		content = xmlNodeListGetString(doc, nodeset->nodeTab[0]->xmlChildrenNode, 1);
+
+		xmlXPathFreeObject (result);
 	}
 
 	result = wputility_get_nodeset (doc, xpathName);
@@ -97,7 +83,7 @@ static gchar* get_wikipedia_article(gchar *search_url)
 	if(result != NULL)
 	{
 		nodeset = result->nodesetval;
-		content = xmlNodeListGetString(doc, nodeset->nodeTab[0]->xmlChildrenNode, 1);
+		*name = (gchar*)xmlGetProp(nodeset->nodeTab[0], (const xmlChar*)"displaytitle");
 
 		xmlXPathFreeObject (result);
 	}
@@ -129,11 +115,13 @@ void wpview_open_preview_window(void *preview_data)
 {
 	GtkWidget *win, *dialog, *content_area, *web_view;
 	gchar *search_url = NULL;
-	gchar *content = NULL;
+	gchar *article_content = NULL;
+	gchar *article_name	= NULL;
 	gchar *webpage = NULL;
 	int size = 0;
 	struct PreviewData *data = (struct PreviewData *)preview_data;
 	gchar *uri = NULL;
+	gchar *user_dir;
 	
 	/* create search path */
 	size = strlen((gchar*)wpl_settings.wikipedia_search_url)+strlen((gchar*)WPL_WIKIPEDIA_API_PATH)+strlen(data->search_text)+1;
@@ -172,18 +160,22 @@ void wpview_open_preview_window(void *preview_data)
 
 	gtk_container_add (GTK_CONTAINER (content_area), win);
 
-	content = get_wikipedia_article(search_url);
+	article_content = get_wikipedia_article(search_url, &article_name);
 
-	uri = wputility_get_uri((gchar*)purple_user_dir(), "vector/main-ltr.css");
+	user_dir = g_build_path("/",(gchar*)purple_user_dir(),"wplookup","resources", NULL);
+	g_printf("%s", user_dir);
+	uri = wputility_get_uri(user_dir, "main-ltr.css");
 	g_object_set (webkit_web_view_get_settings (WEBKIT_WEB_VIEW (web_view)),
 	              "user-stylesheet-uri", uri, NULL);
+
 	g_free(uri);
+	g_free(user_dir);
 
 	gtk_widget_show_all (dialog);
 
-	if(content!=NULL)
+	if(article_content!=NULL)
 	{
-		webpage = wpview_create_webpage(data->search_text, content);
+		webpage = wpview_create_webpage(article_name, article_content);
 		if(webpage != NULL)
 		{
 			webkit_web_view_load_string (WEBKIT_WEB_VIEW (web_view),
@@ -193,14 +185,11 @@ void wpview_open_preview_window(void *preview_data)
 										 "file://");
 			g_free(webpage);
 		}
-		g_free(content);
+		g_free(article_name);
+		g_free(article_content);
 	}
 	else {
-			webkit_web_view_load_string (WEBKIT_WEB_VIEW (web_view),
-		                             "<h1>Error</h1> <p> Couldn't find an aticle. </p>",
-		                             "text/html",
-		                             "UTF-8",
-		                             NULL);
+		webpage = wpview_create_webpage("Error", "<p>Couldn't find an article</p>");
 	}
 
 	if(search_url != NULL)

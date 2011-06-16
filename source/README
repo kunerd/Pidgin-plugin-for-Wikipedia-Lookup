@@ -5,10 +5,10 @@ Building and Installation
 First cd into source directory and  create a new directory. Now cd into the new
 directory and run the following comands:
 
-$ cmake ..
+$ cmake -DCMAKE_INSTALL_PREFIX="$HOME" ..
 $ make
 
-To install the plugin in Pidgin default directory (/user/.purple/plugins) run:
+To install the plugin run:
 
 $ make install
 

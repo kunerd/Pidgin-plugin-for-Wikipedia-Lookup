@@ -93,8 +93,10 @@ gchar * wputility_get_uri(gchar *path, gchar *filename)
 	file = g_file_get_child(dir, filename);
 	uri = g_file_get_uri (file);
 
-	g_object_unref(file);
-	g_object_unref(dir);
+	if(file != NULL)
+		g_object_unref(file);
+	if(dir != NULL)
+		g_object_unref(dir);
 
 	return uri;
 }

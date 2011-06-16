@@ -35,7 +35,6 @@
 GtkTreeModel *wplanguage_get_wikipedia_languages(GtkTreeIter *sel_iter)
 {
 	int i = 0;
-	CURL *curl_handle=NULL;
 	xmlDoc *doc = NULL;
 	xmlDoc *subDoc = NULL;
 	xmlNode *root_element = NULL;
@@ -57,31 +56,7 @@ GtkTreeModel *wplanguage_get_wikipedia_languages(GtkTreeIter *sel_iter)
 
 	store = gtk_list_store_new (NUM_COLS, G_TYPE_STRING, G_TYPE_STRING);
 
-	curl_global_init(CURL_GLOBAL_NOTHING);
-
-	/* init the curl session */ 
-	curl_handle = curl_easy_init();
-
-	/* specify URL to get */ 
-	curl_easy_setopt(curl_handle, CURLOPT_URL, WPL_WIKIPEDIA_SITEMATRIX);
-
-	/* send all data to this function  */
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, wplanguage_write_memory_callback);
-
-	/* we pass our 'chunk' struct to the callback function */ 
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
-
-	/* some servers don't like requests that are made without a user-agent field, so we provide one */ 
-	curl_easy_setopt (curl_handle, CURLOPT_USERAGENT, WPL_USER_AGENT);
-
-	/* get it! */ 
-	curl_easy_perform(curl_handle);
-
-	/* cleanup curl stuff */ 
-	curl_easy_cleanup(curl_handle);
-
-	/* we're done with libcurl, so clean it up */
-	curl_global_cleanup();
+	wpweb_get_webpage(WPL_WIKIPEDIA_SITEMATRIX, (void *)&chunk);
 
 	doc = xmlParseMemory(chunk.memory, chunk.size);
 	if(doc == NULL){

@@ -12,7 +12,8 @@ set (SOURCE_FILES
 					wplanguage.c
 					wpsettings.c
 					wpview.c
-					wputility.c)
+					wputility.c
+					wpweb.c)
  
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -48,19 +49,21 @@ include_directories(${CURL_INCLUDE_DIRS})
 
 add_executable(standalone main-window.c ${SOURCE_FILES})
 
-target_link_libraries(standalone ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBSOUP24_LIBRARIES} ${WEBKIT_LIBRARIES} ${PIDGIN_LIBRARIES})
+target_link_libraries(standalone ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBSOUP24_LIBRARIES} ${WEBKIT_LIBRARIES} ${PIDGIN_LIBRARIES} ${PURPLE_LIBRARIES})
 
 add_library(wplookup SHARED wplookup.c ${SOURCE_FILES})
 
-target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBSOUP24_LIBRARIES} ${WEBKIT_LIBRARIES} ${PIDGIN_LIBRARIES})
+target_link_libraries(wplookup ${GTK2_LIBRARIES} ${CURL_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBSOUP24_LIBRARIES} ${WEBKIT_LIBRARIES} ${PIDGIN_LIBRARIES} ${PURPLE_LIBRARIES})
 
-install (TARGETS wplookup LIBRARY DESTINATION ~/.purple/plugins)
+install (TARGETS wplookup LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/.purple/plugins)
+install (DIRECTORY ../resources DESTINATION ${CMAKE_INSTALL_PREFIX}/.purple/wplookup)
 
+add_custom_target(vg-standalone COMMAND valgrind --leak-check=summary --show-reachable=yes --tool=memcheck --leak-resolution=high --num-callers=20 --trace-children=no --child-silent-after-fork=yes --track-fds=yes standalone -d >valgrind.log 2>&1)
 add_custom_target(valgrind COMMAND valgrind --leak-check=summary --show-reachable=yes --tool=memcheck --leak-resolution=high --num-callers=20 --trace-children=no --child-silent-after-fork=yes --track-fds=yes pidgin -d >valgrind.log 2>&1)
 
 INCLUDE(InstallRequiredSystemLibraries)
 
-SET(CPACK_GENERATOR DEB TGZ)
+SET(CPACK_GENERATOR RPM TGZ)
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "wplookup")
 SET(CPACK_INSTALL_PREFIX "/lib64/pidgin")
 ##SET(CPACK_INSTALL_CMAKE_PROJECTS "$ENV{HOME}/.purple/plugins;wplookup;ALL;/")
@@ -74,7 +77,7 @@ SET(CPACK_PACKAGE_VERSION_PATCH "${wplookup_VERSION_PATCH}")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
 
 set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
-				".*~"
+				"\\\\.*~"
 				"\\\\.git*"
 				"\\\\.anjuta*"
 				"\\\\.task"
