@@ -5,7 +5,7 @@ void wpweb_get_webpage(gchar *url, void *chunk)
 {
 	CURL *curl_handle=NULL;
 
-	curl_global_init(CURL_GLOBAL_NOTHING);
+	curl_global_init(CURL_GLOBAL_ALL);
 
 	/* init the curl session */
 	curl_handle = curl_easy_init();

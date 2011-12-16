@@ -4,3 +4,5 @@
 *anjuta*
 *.tasks
 build
+deps
+build_win32

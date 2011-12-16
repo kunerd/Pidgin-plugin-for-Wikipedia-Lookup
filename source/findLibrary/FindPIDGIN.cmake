@@ -5,24 +5,27 @@
 #  PIDGIN_LIBRARIES - The libraries needed to use LibXml2
 #  PIDGIN_DEFINITIONS - Compiler switches required for using LibXml2
 
-find_package(PkgConfig)
-pkg_check_modules(PC_PIDGIN QUIET pidgin)
-set(PC_PIDGIN_DEFINITIONS ${PC_PIDGIN_CFLAGS_OTHER})
-
 find_path(PIDGIN_INCLUDE_DIR pidgin.h
-          HINTS ${PC_PIDGIN_INCLUDEDIR} ${PC_PIDGIN_INCLUDE_DIRS}
+          HINTS ${CMAKE_FIND_ROOT_PATH}
           PATH_SUFFIXES pidgin)
 
-#find_library(PIDGIN_LIBRARY NAMES pidgin
-#             HINTS ${PC_PIDGIN_LIBDIR} ${PC_PIDGIN_LIBRARY_DIRS} )
+find_library(PIDGIN_LIBRARY NAMES pidgin
+             HINTS ${CMAKE_FIND_ROOT_PATH}
+          	PATH_SUFFIXES pidgin)
 
 set(PIDGIN_LIBRARIES ${PIDGIN_LIBRARY} )
-set(PIDGIN_INCLUDE_DIRS ${PIDGIN_INCLUDE_DIR} )
+
+find_path(PIDGIN_WIN32_INCLUDE_DIR gtkwin32dep.h
+          HINTS ${CMAKE_FIND_ROOT_PATH}
+          PATH_SUFFIXES pidgin/win32)
+
+
+set(PIDGIN_INCLUDE_DIRS ${PIDGIN_INCLUDE_DIR} ${PIDGIN_WIN32_INCLUDE_DIR} )
 
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set PIDGIN_FOUND to TRUE
 # if all listed variables are TRUE
 find_package_handle_standard_args(pidgin DEFAULT_MSG
-                                   PIDGIN_INCLUDE_DIR)
+                                   PIDGIN_LIBRARY PIDGIN_INCLUDE_DIR PIDGIN_WIN32_INCLUDE_DIR)
 
-mark_as_advanced(PIDGIN_INCLUDE_DIR)
+#mark_as_advanced(PIDGIN_INCLUDE_DIR)

@@ -5,16 +5,16 @@
 #  LIBXML2_LIBRARIES - The libraries needed to use LibXml2
 #  LIBXML2_DEFINITIONS - Compiler switches required for using LibXml2
 
-find_package(PkgConfig)
-pkg_check_modules(PC_LIBXML QUIET libxml-2.0)
-set(LIBXML2_DEFINITIONS ${PC_LIBXML_CFLAGS_OTHER})
+#find_package(PkgConfig)
+#pkg_check_modules(PC_LIBXML QUIET libxml-2.0)
+#set(LIBXML2_DEFINITIONS ${PC_LIBXML_CFLAGS_OTHER})
 
 find_path(LIBXML2_INCLUDE_DIR libxml/xpath.h
-          HINTS ${PC_LIBXML_INCLUDEDIR} ${PC_LIBXML_INCLUDE_DIRS}
+          HINTS ${CMAKE_FIND_ROOT_PATH}
           PATH_SUFFIXES libxml2 )
 
 find_library(LIBXML2_LIBRARY NAMES xml2 libxml2
-             HINTS ${PC_LIBXML_LIBDIR} ${PC_LIBXML_LIBRARY_DIRS} )
+             HINTS ${CMAKE_FIND_ROOT_PATH} )
 
 set(LIBXML2_LIBRARIES ${LIBXML2_LIBRARY} )
 set(LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR} )
