@@ -22,7 +22,7 @@ configure_file (
   "${PROJECT_BINARY_DIR}/wpconf.h"
   )
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/findLibrary")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/findLibrary")
 
 find_package(LIBXML2 REQUIRED)
 include_directories(${LIBXML2_INCLUDE_DIRS})
@@ -86,7 +86,7 @@ add_custom_target(valgrind COMMAND valgrind --leak-check=summary --show-reachabl
 INCLUDE(InstallRequiredSystemLibraries)
 
 if(UNIX)
-	message(Linux)
+	message(Installer will be build for Linux)
 	install (TARGETS wplookup LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/.purple/plugins)
 	install (DIRECTORY ../resources DESTINATION ${CMAKE_INSTALL_PREFIX}/.purple/wplookup)
 
@@ -104,18 +104,30 @@ if(UNIX)
 					"\\\\build/*")
 else(UNIX)
 	if(WIN32)
-		message(windows)
+		message("Installer will be build for Win32")
 		SET(CPACK_GENERATOR NSIS)
-		SET(CPACK_MONOLITHIC_INSTALL true)
-		install (TARGETS wplookup
-			 RUNTIME
-			 DESTINATION .purple/plugins)
 
-		install (DIRECTORY ../resources DESTINATION ${CMAKE_INSTALL_PREFIX}/.purple/wplookup)
+		install (TARGETS wplookup
+			 DESTINATION .purple/plugins
+			 RUNTIME
+			 COMPONENT "Plugin")
+
+		install (DIRECTORY ../resources DESTINATION .purple/wplookup)
+
+		set(CPACK_PACKAGE_INSTALL_DIRECTORY "test")
+		  SET(CPACK_PACKAGE_ICON "\\\\")
+		  SET(CPACK_NSIS_INSTALLED_ICON_NAME "\\\\")
+		  SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous Project")
+		  SET(CPACK_NSIS_HELP_LINK "\\\\")
+		  SET(CPACK_NSIS_URL_INFO_ABOUT "test")
+		  SET(CPACK_NSIS_CONTACT "me@my-personal-home-page.com")
+		  SET(CPACK_NSIS_MODIFY_PATH ON)
 
 		set(CPACK_PACKAGE_NAME "WplookupInstaller")
-		set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack Component Example")
-
+		set(CPACK_NSIS_PACKAGE_NAME "WplookupInstaller")
+		set(CPACK_NSIS_DISPLAY_NAME "WplookupInstaller")
+		set(CPACK_NSIS_CONTACT "contact")
+		set(CPACK_TOPLEVEL_DIRECTORY "test")
 	endif(WIN32)
 endif(UNIX)
 
@@ -125,6 +137,7 @@ SET(CPACK_PACKAGE_VERSION_PATCH "${wplookup_VERSION_PATCH}")
 SET(CPACK_PACKAGE_VENDOR "Hendrik Kunert <kunerd@users.sourceforge.net>")
 SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+SET(CPACK_PACKAGE_EXECUTABLES "libwplookup" "MyExecutable" "My Executable")
 
 INCLUDE(CPack)
 
