@@ -14,6 +14,9 @@ set (SOURCE_FILES
 					wpview.c
 					wputility.c
 					wpweb.c)
+
+set (WPLOOKUP_CONTACT "Hendrik Kunert <kunerd@users.sourceforge.net>")
+set (WPLOOKUP_HOMEPAGE "http:\\\\\\\\sourceforge.net/projects/pidginpluginfor")
  
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -51,32 +54,32 @@ include_directories(${GTK2_INCLUDE_DIRS})
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIRS})
 
-#add_executable(standalone main-window.c ${SOURCE_FILES})
+add_executable(standalone main-window.c ${SOURCE_FILES})
 
-#target_link_libraries(
-#standalone
-#${GTK2_LIBRARIES}
-#${CURL_LIBRARIES}
-#${LIBXML2_LIBRARIES}
-#${LIBSOUP_LIBRARIES}
-#${WEBKIT_LIBRARIES}
-#${PIDGIN_LIBRARIES}
-#${PURPLE_LIBRARIES}
-#${GIO2_LIBRARIES}
-#)
+target_link_libraries(
+	standalone
+	${GTK2_LIBRARIES}
+	${CURL_LIBRARIES}
+	${LIBXML2_LIBRARIES}
+	${LIBSOUP_LIBRARIES}
+	${WEBKIT_LIBRARIES}
+	${PIDGIN_LIBRARIES}
+	${PURPLE_LIBRARIES}
+	${GIO2_LIBRARIES}
+)
 
 add_library(wplookup SHARED wplookup.c ${SOURCE_FILES})
 
 target_link_libraries(
-wplookup 
-${GTK2_LIBRARIES}
-${CURL_LIBRARIES}
-${LIBXML2_LIBRARIES}
-${LIBSOUP_LIBRARIES}
-${WEBKIT_LIBRARIES}
-${PIDGIN_LIBRARIES}
-${PURPLE_LIBRARIES}
-${GIO2_LIBRARIES}
+	wplookup 
+	${GTK2_LIBRARIES}
+	${CURL_LIBRARIES}
+	${LIBXML2_LIBRARIES}
+	${LIBSOUP_LIBRARIES}
+	${WEBKIT_LIBRARIES}
+	${PIDGIN_LIBRARIES}
+	${PURPLE_LIBRARIES}
+	${GIO2_LIBRARIES}
 )
 
 add_custom_target(vg-standalone COMMAND valgrind --leak-check=summary --show-reachable=yes --tool=memcheck --leak-resolution=high --num-callers=20 --trace-children=no --child-silent-after-fork=yes --track-fds=yes standalone -d >valgrind.log 2>&1)
@@ -85,16 +88,28 @@ add_custom_target(valgrind COMMAND valgrind --leak-check=summary --show-reachabl
 
 INCLUDE(InstallRequiredSystemLibraries)
 
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A third-party Pidgin plug-in which offers you the possibility to look up received and typed words from Wikipedia.")
+set(CPACK_PACKAGE_VERSION_MAJOR "${wplookup_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${wplookup_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${wplookup_VERSION_PATCH}")
+set(CPACK_PACKAGE_VENDOR "${WPLOOKUP_CONTACT}")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+#set(CPACK_PACKAGE_EXECUTABLES "")
+
 if(UNIX)
-	message(Installer will be build for Linux)
-	install (TARGETS wplookup LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/.purple/plugins)
-	install (DIRECTORY ../resources DESTINATION ${CMAKE_INSTALL_PREFIX}/.purple/wplookup)
+	message("Installer will be build for Linux")
+	if(NOT EXISTS CMAKE_INSTALL_PREFIX)
+		message("Install prefix is not given, set to default!")
+		set(CMAKE_INSTALL_PREFIX "value")
+	endif(NOT EXISTS CMAKE_INSTALL_PREFIX)
+	install (TARGETS wplookup LIBRARY DESTINATION .purple/plugins)
+	install (DIRECTORY ../resources DESTINATION .purple/wplookup)
 
 	SET(CPACK_GENERATOR RPM TGZ)
-	SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "wplookup")
 	SET(CPACK_INSTALL_PREFIX "/lib64/pidgin")
 	##SET(CPACK_INSTALL_CMAKE_PROJECTS "$ENV{HOME}/.purple/plugins;wplookup;ALL;/")
-	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Hendrik Kunert <kunerd@users.sourceforge.net>")
+	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "${WPLOOKUP_CONTACT}")
 	SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
 	set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
 					"\\\\.*~"
@@ -105,39 +120,31 @@ if(UNIX)
 else(UNIX)
 	if(WIN32)
 		message("Installer will be build for Win32")
-		SET(CPACK_GENERATOR NSIS)
+
+		set(CPACK_PACKAGE_INSTALL_DIRECTORY "Pidgin")
 
 		install (TARGETS wplookup
-			 DESTINATION .purple/plugins
-			 RUNTIME
-			 COMPONENT "Plugin")
+			 DESTINATION plugins)
 
-		install (DIRECTORY ../resources DESTINATION .purple/wplookup)
+		file(GLOB windows_dlls "${CMAKE_CURRENT_BINARY_DIR}/bin/*.dll")
+		install(FILES ${windows_dlls}
+			DESTINATION ./)
 
-		set(CPACK_PACKAGE_INSTALL_DIRECTORY "test")
-		  SET(CPACK_PACKAGE_ICON "\\\\")
-		  SET(CPACK_NSIS_INSTALLED_ICON_NAME "\\\\")
-		  SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous Project")
-		  SET(CPACK_NSIS_HELP_LINK "\\\\")
-		  SET(CPACK_NSIS_URL_INFO_ABOUT "test")
-		  SET(CPACK_NSIS_CONTACT "me@my-personal-home-page.com")
-		  SET(CPACK_NSIS_MODIFY_PATH ON)
+		install (DIRECTORY ../resources
+			 DESTINATION wplookup)
+	
+		set(CPACK_GENERATOR NSIS)
+		#set(CPACK_NSIS_CREATE_ICONS "")
+		set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} Wikipedia Lookup")
+		set(CPACK_NSIS_HELP_LINK "${WPLOOKUP_HOMEPAGE}")
+		set(CPACK_NSIS_URL_INFO_ABOUT "${WPLOOKUP_HOMEPAGE}")
+		set(CPACK_NSIS_MODIFY_PATH OFF)
 
-		set(CPACK_PACKAGE_NAME "WplookupInstaller")
-		set(CPACK_NSIS_PACKAGE_NAME "WplookupInstaller")
-		set(CPACK_NSIS_DISPLAY_NAME "WplookupInstaller")
-		set(CPACK_NSIS_CONTACT "contact")
-		set(CPACK_TOPLEVEL_DIRECTORY "test")
+		#set(CPACK_PACKAGE_NAME "WplookupInstaller")
+		#set(CPACK_NSIS_PACKAGE_NAME "wplookupInstaller")
+		set(CPACK_NSIS_CONTACT "${WPLOOKUP_CONTACT}")
 	endif(WIN32)
 endif(UNIX)
 
-SET(CPACK_PACKAGE_VERSION_MAJOR "${wplookup_VERSION_MAJOR}")
-SET(CPACK_PACKAGE_VERSION_MINOR "${wplookup_VERSION_MINOR}")
-SET(CPACK_PACKAGE_VERSION_PATCH "${wplookup_VERSION_PATCH}")
-SET(CPACK_PACKAGE_VENDOR "Hendrik Kunert <kunerd@users.sourceforge.net>")
-SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION")
-SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
-SET(CPACK_PACKAGE_EXECUTABLES "libwplookup" "MyExecutable" "My Executable")
-
-INCLUDE(CPack)
+include(CPack)
 
