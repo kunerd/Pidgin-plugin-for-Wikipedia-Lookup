@@ -25,34 +25,64 @@ configure_file (
   "${PROJECT_BINARY_DIR}/wpconf.h"
   )
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/findLibrary")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-find_package(LIBXML2 REQUIRED)
-include_directories(${LIBXML2_INCLUDE_DIRS})
+################ LIBXML2 install Check ####################
+find_package(LibXml2 REQUIRED)
+if (LIBXML2_FOUND)
+	add_definitions(${LIBXML2_DEFINITIONS})
+	include_directories(${LIBXML2_INCLUDE_DIRS})
+#ELSE (LIBXML2_FOUND)	
+endif (LIBXML2_FOUND)
 
-find_package(PIDGIN REQUIRED)
-include_directories(${PIDGIN_INCLUDE_DIRS})
+################ Pidgin install Check ####################
+find_package(Pidgin REQUIRED)
+if (PIDGIN_FOUND)
+	add_definitions(${PIDGIN_DEFINITIONS})
+	include_directories(${PIDGIN_INCLUDE_DIRS})
+endif(PIDGIN_FOUND)
 
-find_package(PURPLE REQUIRED)
-include_directories(${PURPLE_INCLUDE_DIRS})
+################ Purple install Check ####################
+find_package(Purple REQUIRED)
+if (PURPLE_FOUND)
+	add_definitions(${PURPLE_DEFINITIONS})
+	include_directories(${PURPLE_INCLUDE_DIRS})
+endif(PURPLE_FOUND)
 
-find_package(WEBKIT REQUIRED)
-include_directories(${WEBKIT_INCLUDE_DIRS})
+################ WebkitGtk install Check ####################
+find_package(WebkitGtk REQUIRED)
+if (WEBKITGTK_FOUND)
+	add_definitions(${WEBKITGTK_DEFINITIONS})
+	include_directories(${WEBKITGTK_INCLUDE_DIRS})
+endif(WEBKITGTK_FOUND)
 
+################ LibSoup2 install Check ####################
 find_package(LibSoup2 REQUIRED)
-include_directories(${LIBSOUP_INCLUDE_DIRS})
+if (LIBSOUP2_FOUND)
+	add_definitions(${LIBSOUP2_DEFINITIONS})
+	include_directories(${LIBSOUP2_INCLUDE_DIRS})
+endif (LIBSOUP2_FOUND)
 
+################ Gtk2 install Check ####################
 find_package(GTK2 REQUIRED)
-include_directories(${GTK2_INCLUDE_DIRS})
+if (GTK2_FOUND)
+	add_definitions(${GTK2_DEFINITIONS})
+	include_directories(${GTK2_INCLUDE_DIRS})
+endif (GTK2_FOUND)
 
-find_package(GIO2 REQUIRED)
-include_directories(${GIO2_INCLUDE_DIRS})
+################ Gio2 install Check ####################
+# required for windows builds, not included in gtk2 find module
+if (WIN32)
+	find_package(GIO2 REQUIRED)
+	include_directories(${GIO2_INCLUDE_DIRS})
+endif (WIN32)
 
-find_package(GTK2 REQUIRED)
-include_directories(${GTK2_INCLUDE_DIRS})
-
+################ Curl install Check ####################
 find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIRS})
+if (CURL_FOUND)
+	add_definitions(${CURL_DEFINITIONS})
+	include_directories(${CURL_INCLUDE_DIRS})
+endif (CURL_FOUND)
 
 add_executable(standalone main-window.c ${SOURCE_FILES})
 
@@ -62,7 +92,7 @@ target_link_libraries(
 	${CURL_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${LIBSOUP_LIBRARIES}
-	${WEBKIT_LIBRARIES}
+	${WEBKITGTK_LIBRARIES}
 	${PIDGIN_LIBRARIES}
 	${PURPLE_LIBRARIES}
 	${GIO2_LIBRARIES}
@@ -76,7 +106,7 @@ target_link_libraries(
 	${CURL_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${LIBSOUP_LIBRARIES}
-	${WEBKIT_LIBRARIES}
+	${WEBKITGTK_LIBRARIES}
 	${PIDGIN_LIBRARIES}
 	${PURPLE_LIBRARIES}
 	${GIO2_LIBRARIES}
@@ -99,10 +129,10 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 
 if(UNIX)
 	message("Installer will be build for Linux")
-	if(NOT EXISTS CMAKE_INSTALL_PREFIX)
-		message("Install prefix is not given, set to default!")
-		set(CMAKE_INSTALL_PREFIX "value")
-	endif(NOT EXISTS CMAKE_INSTALL_PREFIX)
+	#if(NOT EXISTS CMAKE_INSTALL_PREFIX)
+	#	message("Install prefix is not given, set to default!")
+	#	set(CMAKE_INSTALL_PREFIX "value")
+	#endif(NOT EXISTS CMAKE_INSTALL_PREFIX)
 	install (TARGETS wplookup LIBRARY DESTINATION .purple/plugins)
 	install (DIRECTORY ../resources DESTINATION .purple/wplookup)
 

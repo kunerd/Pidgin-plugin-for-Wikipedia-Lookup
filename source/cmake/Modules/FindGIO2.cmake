@@ -7,7 +7,7 @@
 
 #find_package(PkgConfig)
 #pkg_check_modules(PC_GIO2 webkit-1.0 webkit)
-set(GIO2_DEFINITIONS ${PC_GIO2_CFLAGS_OTHER})
+#set(GIO2_DEFINITIONS ${PC_GIO2_CFLAGS_OTHER})
 
 find_path(GIO2_INCLUDE_DIR gio/gio.h
           HINTS ${PC_GIO2_INCLUDEDIR} ${PC_GIO2_INCLUDE_DIRS} ${CMAKE_FIND_ROOT_PATH}
