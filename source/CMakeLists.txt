@@ -31,8 +31,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 find_package(LibXml2 REQUIRED)
 if (LIBXML2_FOUND)
 	add_definitions(${LIBXML2_DEFINITIONS})
-	include_directories(${LIBXML2_INCLUDE_DIRS})
-#ELSE (LIBXML2_FOUND)	
+	include_directories(${LIBXML2_INCLUDE_DIRS})	
 endif (LIBXML2_FOUND)
 
 ################ Pidgin install Check ####################
@@ -112,13 +111,16 @@ target_link_libraries(
 	${GIO2_LIBRARIES}
 )
 
+enable_testing()
+add_subdirectory(test)
+
 add_custom_target(vg-standalone COMMAND valgrind --leak-check=summary --show-reachable=yes --tool=memcheck --leak-resolution=high --num-callers=20 --trace-children=no --child-silent-after-fork=yes --track-fds=yes standalone -d >valgrind.log 2>&1)
 
 add_custom_target(valgrind COMMAND valgrind --leak-check=summary --show-reachable=yes --tool=memcheck --leak-resolution=high --num-callers=20 --trace-children=no --child-silent-after-fork=yes --track-fds=yes pidgin -d >valgrind.log 2>&1)
 
-INCLUDE(InstallRequiredSystemLibraries)
+include(InstallRequiredSystemLibraries)
 
-SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A third-party Pidgin plug-in which offers you the possibility to look up received and typed words from Wikipedia.")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A third-party Pidgin plug-in which offers you the possibility to look up received and typed words from Wikipedia.")
 set(CPACK_PACKAGE_VERSION_MAJOR "${wplookup_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${wplookup_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${wplookup_VERSION_PATCH}")
@@ -128,7 +130,7 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 #set(CPACK_PACKAGE_EXECUTABLES "")
 
 if(UNIX)
-	message("Installer will be build for Linux")
+	message("Installer will be build for Linux only")  
 	#if(NOT EXISTS CMAKE_INSTALL_PREFIX)
 	#	message("Install prefix is not given, set to default!")
 	#	set(CMAKE_INSTALL_PREFIX "value")
@@ -169,9 +171,6 @@ else(UNIX)
 		set(CPACK_NSIS_HELP_LINK "${WPLOOKUP_HOMEPAGE}")
 		set(CPACK_NSIS_URL_INFO_ABOUT "${WPLOOKUP_HOMEPAGE}")
 		set(CPACK_NSIS_MODIFY_PATH OFF)
-
-		#set(CPACK_PACKAGE_NAME "WplookupInstaller")
-		#set(CPACK_NSIS_PACKAGE_NAME "wplookupInstaller")
 		set(CPACK_NSIS_CONTACT "${WPLOOKUP_CONTACT}")
 	endif(WIN32)
 endif(UNIX)
