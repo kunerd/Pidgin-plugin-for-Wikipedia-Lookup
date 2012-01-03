@@ -1,0 +1,46 @@
+project(wplookup C)
+cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+
+include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_BINARY_DIR})
+
+set (wplookup_VERSION_MAJOR 0)
+set (wplookup_VERSION_MINOR 0)
+set (wplookup_VERSION_PATCH 1)
+
+set (SOURCE_FILES
+                                        wplookup.c
+                                        wparticle.c
+)
+
+set (WPLOOKUP_CONTACT "Hendrik Kunert <kunerd@users.sourceforge.net>")
+set (WPLOOKUP_HOMEPAGE "http:\\\\\\\\sourceforge.net/projects/pidginpluginfor")
+
+# configure a header file to pass some of the CMake settings
+# to the source code
+#configure_file (
+#  "${PROJECT_SOURCE_DIR}/wpconf.h.in"
+#  "${PROJECT_BINARY_DIR}/wpconf.h"
+#  )
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+#add_subdirectory(wplPidgin)
+#add_subdirectory(wpLookup)
+
+################ Gtk2 install Check ####################
+find_package(GTK2 REQUIRED)
+if (GTK2_FOUND)
+        add_definitions(${GTK2_DEFINITIONS})
+        include_directories(${GTK2_INCLUDE_DIRS})
+endif (GTK2_FOUND)
+
+add_library(wplookup STATIC wplookup.c ${SOURCE_FILES})
+
+target_link_libraries(
+        wplookup
+        ${GTK2_LIBRARIES}
+)
+
+enable_testing()
+add_subdirectory(tests)

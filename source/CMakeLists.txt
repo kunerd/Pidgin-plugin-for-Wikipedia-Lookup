@@ -27,6 +27,9 @@ configure_file (
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
+add_subdirectory(wplPidgin)
+add_subdirectory(wpLookup)
+
 ################ LIBXML2 install Check ####################
 find_package(LibXml2 REQUIRED)
 if (LIBXML2_FOUND)
@@ -83,33 +86,33 @@ if (CURL_FOUND)
 	include_directories(${CURL_INCLUDE_DIRS})
 endif (CURL_FOUND)
 
-add_executable(standalone main-window.c ${SOURCE_FILES})
+#add_executable(standalone main-window.c ${SOURCE_FILES})
 
-target_link_libraries(
-	standalone
-	${GTK2_LIBRARIES}
-	${CURL_LIBRARIES}
-	${LIBXML2_LIBRARIES}
-	${LIBSOUP_LIBRARIES}
-	${WEBKITGTK_LIBRARIES}
-	${PIDGIN_LIBRARIES}
-	${PURPLE_LIBRARIES}
-	${GIO2_LIBRARIES}
-)
+#target_link_libraries(
+#	standalone
+#	${GTK2_LIBRARIES}
+#	${CURL_LIBRARIES}
+#	${LIBXML2_LIBRARIES}
+#	${LIBSOUP_LIBRARIES}
+#	${WEBKITGTK_LIBRARIES}
+#	${PIDGIN_LIBRARIES}
+#	${PURPLE_LIBRARIES}
+#	${GIO2_LIBRARIES}
+#)
 
-add_library(wplookup SHARED wplookup.c ${SOURCE_FILES})
+#add_library(wplookup SHARED wplookup.c ${SOURCE_FILES})
 
-target_link_libraries(
-	wplookup 
-	${GTK2_LIBRARIES}
-	${CURL_LIBRARIES}
-	${LIBXML2_LIBRARIES}
-	${LIBSOUP_LIBRARIES}
-	${WEBKITGTK_LIBRARIES}
-	${PIDGIN_LIBRARIES}
-	${PURPLE_LIBRARIES}
-	${GIO2_LIBRARIES}
-)
+#target_link_libraries(
+#	wplookup
+#	${GTK2_LIBRARIES}
+#	${CURL_LIBRARIES}
+#	${LIBXML2_LIBRARIES}
+#	${LIBSOUP_LIBRARIES}
+#	${WEBKITGTK_LIBRARIES}
+#	${PIDGIN_LIBRARIES}
+#	${PURPLE_LIBRARIES}
+#	${GIO2_LIBRARIES}
+#)
 
 enable_testing()
 add_subdirectory(test)
@@ -135,7 +138,7 @@ if(UNIX)
 	#	message("Install prefix is not given, set to default!")
 	#	set(CMAKE_INSTALL_PREFIX "value")
 	#endif(NOT EXISTS CMAKE_INSTALL_PREFIX)
-	install (TARGETS wplookup LIBRARY DESTINATION .purple/plugins)
+        #install (TARGETS wplookup LIBRARY DESTINATION .purple/plugins)
 	install (DIRECTORY ../resources DESTINATION .purple/wplookup)
 
 	SET(CPACK_GENERATOR RPM TGZ)
@@ -155,8 +158,8 @@ else(UNIX)
 
 		set(CPACK_PACKAGE_INSTALL_DIRECTORY "Pidgin")
 
-		install (TARGETS wplookup
-			 DESTINATION plugins)
+                #install (TARGETS wplookup
+                #	 DESTINATION plugins)
 
 		file(GLOB windows_dlls "${CMAKE_CURRENT_BINARY_DIR}/bin/*.dll")
 		install(FILES ${windows_dlls}

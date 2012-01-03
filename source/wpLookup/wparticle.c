@@ -1,5 +1,5 @@
 /*
- *  Wikipedia Lookup - A third-party Pidgin plug-in which offers 
+ *  Wikipedia Lookup - A third-party Pidgin plug-in which offers
  *					  you the possibility to look up received and
  *					  typed words on Wikipedia.
  *
@@ -21,18 +21,45 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WPLOOKUP_H
-#define WPLOOKUP_H
+#include "wparticle.h"
 
-#define WPLOOKUP_PLUGIN_ID "gtk-hendrik_kunert-wikipedia-lookup"
-#define PURPLE_PLUGINS
+WikipediaArticle *WikipediaArticle_construct(gchar *name, gchar *content)
+{
+    WikipediaArticle *o;
+    if(!(o=malloc(sizeof(WikipediaArticle))))
+    {
+        return NULL;
+    }
+    o->name = name;
+    o->content = content;
 
-#include <pidgin.h>
-#include <libpurple/version.h>
-#include <pidgin/gtkplugin.h>
+    return o;
+}
 
-PurplePlugin *wplookup_plugin_handle = NULL;
+void WikipediaArticle_destruct(WikipediaArticle *o)
+{
+    if(o)
+    {
+        free(o);
+    }
+}
 
-struct settings wpl_settings;
+gchar *WikipediaArticle_getName(WikipediaArticle *o)
+{
+    return o->name;
+}
 
-#endif
+gchar *WikipediaArticle_getContent(WikipediaArticle *o)
+{
+    return o->content;
+}
+
+void WikipediaArticle_setName(WikipediaArticle *o, gchar *name)
+{
+    o->name = name;
+}
+
+void WikipediaArticle_setContent(WikipediaArticle *o, gchar *content)
+{
+    o->content = content;
+}
