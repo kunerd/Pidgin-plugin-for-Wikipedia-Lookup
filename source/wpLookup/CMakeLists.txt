@@ -9,8 +9,9 @@ set (wplookup_VERSION_MINOR 0)
 set (wplookup_VERSION_PATCH 1)
 
 set (SOURCE_FILES
-                                        wplookup.c
-                                        wparticle.c
+    wparticle.c
+    wpopensearch.c
+    wpxml.c
 )
 
 set (WPLOOKUP_CONTACT "Hendrik Kunert <kunerd@users.sourceforge.net>")
@@ -35,11 +36,27 @@ if (GTK2_FOUND)
         include_directories(${GTK2_INCLUDE_DIRS})
 endif (GTK2_FOUND)
 
+################ LIBXML2 install Check ####################
+find_package(LibXml2 REQUIRED)
+if (LIBXML2_FOUND)
+        add_definitions(${LIBXML2_DEFINITIONS})
+        include_directories(${LIBXML2_INCLUDE_DIRS})
+endif (LIBXML2_FOUND)
+
+################ Curl install Check ####################
+find_package(CURL REQUIRED)
+if (CURL_FOUND)
+        add_definitions(${CURL_DEFINITIONS})
+        include_directories(${CURL_INCLUDE_DIRS})
+endif (CURL_FOUND)
+
 add_library(wplookup STATIC wplookup.c ${SOURCE_FILES})
 
 target_link_libraries(
         wplookup
         ${GTK2_LIBRARIES}
+        ${CURL_LIBRARIES}
+        ${LIBXML2_LIBRARIES}
 )
 
 enable_testing()

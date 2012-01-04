@@ -8,7 +8,7 @@ set (wplookup_VERSION_MAJOR 0)
 set (wplookup_VERSION_MINOR 2)
 set (wplookup_VERSION_PATCH 0)
 
-set (SOURCE_FILES 
+set (SOURCE_FILES
 					wplanguage.c
 					wpsettings.c
 					wpview.c

@@ -29,6 +29,8 @@
 #include <string.h>
 #include "CUnit/Basic.h"
 #include "wplookup.h"
+#include "wpopensearch.h"
+#include "wpxml.h"
 
 /* Pointer to the file used by the tests. */
 static FILE* temp_file = NULL;
@@ -113,6 +115,36 @@ void testWPARTICLE(void)
     CU_ASSERT(0 == g_strcmp0("was the greatest", wpa->content));
 }
 
+void testWPXML(void)
+{
+    WikipediaXml *xml;
+    gchar *text;
+    gchar *url;
+
+    xml = WikipediaXml_construct();
+    url = g_strdup_printf ("http://de.wikipedia.org/w/api.php?action=opensearch&search=%s&format=xml",
+                                     "Rory%20Gallagher");
+
+    WikipediaXml_load(xml, url);
+    text = WikipediaXml_getText(xml, "/os:SearchSuggestion/os:Section/os:Item/os:Text");
+    CU_ASSERT(0 == g_strcmp0((gchar*)"Rory Gallagher", text));
+
+    WikipediaXml_destruct(xml);
+    g_free(text);
+    g_free(url);
+}
+
+void testOPENSEARCH(void)
+{
+    OpensearchItem *os;
+    os = OpensearchItem_construct();
+    OpensearchItem_search(os, "Rory%20Gallagher");
+    CU_ASSERT(0 == g_strcmp0("Rory Gallagher", os->text));
+    CU_ASSERT(NULL != os->description);
+    CU_ASSERT(0 == g_strcmp0("http://de.wikipedia.org/wiki/Rory_Gallagher", os->url));
+    OpensearchItem_destruct(os);
+}
+
 /* The main() function for setting up and running the tests.
  * Returns a CUE_SUCCESS on successful running, another
  * CUnit error code on failure.
@@ -137,7 +169,9 @@ int main()
    if ((NULL == CU_add_test(pSuite, "test of fprintf()", testFPRINTF)) ||
        (NULL == CU_add_test(pSuite, "test of fread()", testFREAD)) ||
        (NULL == CU_add_test(pSuite, "test of WikipediaLookup", testWPLOOKUP)) ||
-       (NULL == CU_add_test(pSuite, "test WikipediaArticle", testWPARTICLE)))
+       (NULL == CU_add_test(pSuite, "test WikipediaArticle", testWPARTICLE)) ||
+       (NULL == CU_add_test(pSuite, "get text from xml file", testWPXML)) ||
+       (NULL == CU_add_test(pSuite, "test Opensearch", testOPENSEARCH)))
    {
       CU_cleanup_registry();
       return CU_get_error();
