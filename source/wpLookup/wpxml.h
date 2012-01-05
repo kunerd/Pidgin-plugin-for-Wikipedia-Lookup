@@ -48,6 +48,10 @@ void WikipediaXml_destruct(WikipediaXml *o);
 
 void WikipediaXml_load(WikipediaXml *o, gchar *url);
 
-gchar *WikipediaXml_getText(WikipediaXml *o, xmlChar *xPath);
+gchar *WikipediaXml_getText(WikipediaXml *o, gchar *xPath);
+
+gchar *WikipediaXml_getAttribute(WikipediaXml *o, gchar *xPath, gchar *name);
+
+xmlXPathObjectPtr WikipediaXml_getNodeset (WikipediaXml *o, xmlChar *xPath);
 
 #endif

@@ -23,15 +23,13 @@
 
 #include "wparticle.h"
 
-WikipediaArticle *WikipediaArticle_construct(gchar *name, gchar *content)
+WikipediaArticle *WikipediaArticle_construct()
 {
     WikipediaArticle *o;
     if(!(o=malloc(sizeof(WikipediaArticle))))
     {
         return NULL;
     }
-    o->name = name;
-    o->content = content;
 
     return o;
 }
@@ -42,24 +40,4 @@ void WikipediaArticle_destruct(WikipediaArticle *o)
     {
         free(o);
     }
-}
-
-gchar *WikipediaArticle_getName(WikipediaArticle *o)
-{
-    return o->name;
-}
-
-gchar *WikipediaArticle_getContent(WikipediaArticle *o)
-{
-    return o->content;
-}
-
-void WikipediaArticle_setName(WikipediaArticle *o, gchar *name)
-{
-    o->name = name;
-}
-
-void WikipediaArticle_setContent(WikipediaArticle *o, gchar *content)
-{
-    o->content = content;
 }

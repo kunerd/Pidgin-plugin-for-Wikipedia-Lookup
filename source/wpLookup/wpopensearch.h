@@ -35,7 +35,7 @@ typedef struct
     gchar *url;
 } OpensearchItem;
 
-OpensearchItem *OpensearchItem_construct();
+OpensearchItem *OpensearchItem_construct(void);
 
 int OpensearchItem_search(OpensearchItem *o, gchar *text);
 

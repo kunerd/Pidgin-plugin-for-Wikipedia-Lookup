@@ -21,27 +21,20 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WPLOOKUP_H
-#define WPLOOKUP_H
+#ifndef WPLOOKUP_WPLINKEDLIST_H
+#define WPLOOKUP_WPLINKEDLIST_H
 
-#include <gtk/gtk.h>
 #include <stdlib.h>
 
-#include "wparticle.h"
-#include "wplinkedlist.h"
+typedef struct node_s {
+        void *data;
+        struct node_s *next;
+} LinkedList;
 
-typedef struct
-{
-    gchar *url;
-    gchar *language;
-} WikipediaLookup;
+LinkedList *LinkedList_construct(void *data);
 
-WikipediaLookup *WikipediaLookup_construct(gchar *url, gchar *language);
+void LinkedList_destruct(LinkedList *o);
 
-void WikipediaLookup_destruct(WikipediaLookup *o);
-
-WikipediaArticle *WikipediaLookup_loadArticle(WikipediaLookup *o, gchar *search);
-
-int WikipediaLookup_getLanguages(LinkedList *resultList);
+LinkedList *LinkedList_addElement(LinkedList *o, void *data);
 
 #endif

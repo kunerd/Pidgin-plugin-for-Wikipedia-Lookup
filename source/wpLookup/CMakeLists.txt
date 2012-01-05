@@ -12,6 +12,7 @@ set (SOURCE_FILES
     wparticle.c
     wpopensearch.c
     wpxml.c
+    wplinkedlist.c
 )
 
 set (WPLOOKUP_CONTACT "Hendrik Kunert <kunerd@users.sourceforge.net>")

@@ -98,21 +98,31 @@ void testFREAD(void)
 void testWPLOOKUP(void)
 {
     WikipediaLookup *wpl;
-    wpl = WikipediaLookup_construct("http://wiki", "Deutsch");
+    int i;
+    /*wpl = WikipediaLookup_construct("http://wiki", "Deutsch");
     CU_ASSERT(NULL != wpl->url);
     CU_ASSERT(0 == g_strcmp0("http://wiki", wpl->url));
     CU_ASSERT(NULL != wpl->language);
-    CU_ASSERT(0 == g_strcmp0("Deutsch", wpl->language));
+    CU_ASSERT(0 == g_strcmp0("Deutsch", wpl->language));*/
+
+    LinkedList *list, *iterator;
+    list = LinkedList_construct(NULL);
+    i = WikipediaLookup_getLanguages(list);
+    printf("  --> wiki-count: %d --> ", i);
+
+    iterator = list;
+    while(iterator != NULL)
+    {
+        wpl = (WikipediaLookup*)(iterator->data);
+        //printf("Wiki: %s, URL: %s\n", wpl->language, wpl->url);
+        WikipediaLookup_destruct(wpl);
+        iterator = iterator->next;
+    }
+    LinkedList_destruct(list);
 }
 
 void testWPARTICLE(void)
 {
-    WikipediaArticle *wpa;
-    wpa = WikipediaArticle_construct("Rory Gallagher", "was the greatest");
-    CU_ASSERT(NULL != wpa->name);
-    CU_ASSERT(0 == g_strcmp0("Rory Gallagher", wpa->name));
-    CU_ASSERT(NULL != wpa->content);
-    CU_ASSERT(0 == g_strcmp0("was the greatest", wpa->content));
 }
 
 void testWPXML(void)
@@ -128,9 +138,13 @@ void testWPXML(void)
     WikipediaXml_load(xml, url);
     text = WikipediaXml_getText(xml, "/os:SearchSuggestion/os:Section/os:Item/os:Text");
     CU_ASSERT(0 == g_strcmp0((gchar*)"Rory Gallagher", text));
+    g_free(text);
+
+    text = WikipediaXml_getAttribute(xml, "/os:SearchSuggestion", "version");
+    CU_ASSERT(0 == g_strcmp0((gchar*)"2.0", text));
+    g_free(text);
 
     WikipediaXml_destruct(xml);
-    g_free(text);
     g_free(url);
 }
 

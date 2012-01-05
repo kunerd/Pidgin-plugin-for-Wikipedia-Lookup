@@ -23,8 +23,6 @@
 
 #include "wpxml.h"
 
-xmlXPathObjectPtr WikipediaXml_getNodeset (xmlDocPtr doc, xmlChar *xpath);
-
 size_t WikipediaXml_writeMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 
 WikipediaXml *WikipediaXml_construct(void)
@@ -78,31 +76,42 @@ void WikipediaXml_load(WikipediaXml *o, gchar *url)
             //TODO: real error logging
             printf("no valid xml");
         }
+        xmlCleanupParser();
 }
 
-gchar *WikipediaXml_getText(WikipediaXml *o, xmlChar *xPath)
+gchar *WikipediaXml_getText(WikipediaXml *o, gchar *xPath)
 {
+    gchar *content = NULL;
     xmlXPathObjectPtr result = NULL;
-    xmlChar *content = NULL;
-    xmlNodeSetPtr nodeset = NULL;
 
-    if(o->doc == NULL)
-    {
-        return NULL;
-    }
-
-    result = WikipediaXml_getNodeset(o->doc, xPath);
+    result = WikipediaXml_getNodeset(o, (xmlChar*)xPath);
     if(result == NULL)
     {
         return NULL;
     }
 
-    nodeset = result->nodesetval;
-    content = xmlNodeListGetString(o->doc, nodeset->nodeTab[0]->xmlChildrenNode, 1);
+    content = (gchar*) xmlNodeListGetString(o->doc, result->nodesetval->nodeTab[0]->xmlChildrenNode, 1);
 
-    xmlXPathFreeObject (result);
+    xmlXPathFreeObject(result);
 
-    return (gchar*) content;
+    return content;
+}
+
+gchar *WikipediaXml_getAttribute(WikipediaXml *o, gchar *xPath, gchar *name)
+{
+    gchar *content= NULL;
+    xmlXPathObjectPtr result = NULL;
+
+    result = WikipediaXml_getNodeset(o, (xmlChar*)xPath);
+    if(result == NULL)
+    {
+        return NULL;
+    }
+    content = (gchar*)xmlGetProp(result->nodesetval->nodeTab[0], (xmlChar*)name);
+
+    xmlXPathFreeObject(result);
+
+    return content;
 }
 
 /* Function : wputility_get_nodeset
@@ -115,12 +124,18 @@ gchar *WikipediaXml_getText(WikipediaXml *o, xmlChar *xPath)
    Procedure: 	returns a pointer to an xml node found via xpath, if no such node
                        exists return value is NULL
 */
-xmlXPathObjectPtr WikipediaXml_getNodeset (xmlDocPtr doc, xmlChar *xpath){
+xmlXPathObjectPtr WikipediaXml_getNodeset (WikipediaXml *o, xmlChar *xPath){
 
-       xmlXPathContextPtr context;
-       xmlXPathObjectPtr result;
+       xmlXPathContextPtr context = NULL;
+       xmlXPathObjectPtr result = NULL;
+       xmlNodeSetPtr nodeset = NULL;
 
-       context = xmlXPathNewContext(doc);
+       if(o->doc == NULL)
+       {
+           return NULL;
+       }
+
+       context = xmlXPathNewContext(o->doc);
        if (context == NULL) {
                return NULL;
        }
@@ -128,21 +143,22 @@ xmlXPathObjectPtr WikipediaXml_getNodeset (xmlDocPtr doc, xmlChar *xpath){
        // TODO: remove local static text
        xmlXPathRegisterNs(context,  BAD_CAST "os", BAD_CAST "http://opensearch.org/searchsuggest2");
 
-       result = xmlXPathEvalExpression(xpath, context);
+       result = xmlXPathEvalExpression(xPath, context);
        if (result == NULL) {
            xmlXPathFreeContext(context);
            return NULL;
        }
 
-       if(xmlXPathNodeSetIsEmpty(result->nodesetval)){
-               xmlXPathFreeObject(result);
-               return NULL;
+       nodeset = result->nodesetval;
+       if(xmlXPathNodeSetIsEmpty(nodeset)){
+           xmlXPathFreeContext(context);
+           xmlXPathFreeObject(result);
+           return NULL;
        }
-
        xmlXPathFreeContext(context);
 
        return result;
-}
+  }
 
 /* Function : wplanguage_write_memory_callback(void *ptr, size_t size, size_t nmemb, void *data)
         -----------------------------------------------------------

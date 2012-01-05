@@ -23,7 +23,7 @@
 
 #include "wpopensearch.h"
 
-OpensearchItem *OpensearchItem_construct()
+OpensearchItem *OpensearchItem_construct(void)
 {
     OpensearchItem *o;
     if(!(o=malloc(sizeof(OpensearchItem))))
