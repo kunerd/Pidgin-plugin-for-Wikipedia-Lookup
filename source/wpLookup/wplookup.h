@@ -27,7 +27,6 @@
 #include <gtk/gtk.h>
 #include <stdlib.h>
 
-#include "wparticle.h"
 #include "wplinkedlist.h"
 
 typedef struct
@@ -39,8 +38,6 @@ typedef struct
 WikipediaLookup *WikipediaLookup_construct(gchar *url, gchar *language);
 
 void WikipediaLookup_destruct(WikipediaLookup *o);
-
-WikipediaArticle *WikipediaLookup_loadArticle(WikipediaLookup *o, gchar *search);
 
 int WikipediaLookup_getLanguages(LinkedList *resultList);
 

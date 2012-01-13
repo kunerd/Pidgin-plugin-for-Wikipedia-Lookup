@@ -22,14 +22,19 @@
  */
 
 #include "wparticle.h"
+#include "wpopensearch.h"
 
-WikipediaArticle *WikipediaArticle_construct()
+WikipediaArticle *WikipediaArticle_construct(WikipediaLookup *wpl)
 {
     WikipediaArticle *o;
     if(!(o=malloc(sizeof(WikipediaArticle))))
     {
         return NULL;
     }
+
+    o->name = NULL;
+    o->content = NULL;
+    o->wpl = wpl;
 
     return o;
 }
@@ -38,6 +43,36 @@ void WikipediaArticle_destruct(WikipediaArticle *o)
 {
     if(o)
     {
+        g_free(o->name);
+        g_free(o->content);
         free(o);
     }
+}
+
+void WikipediaArticle_load(WikipediaArticle *o, gchar *search)
+{
+    OpensearchItem *os;
+    WikipediaXml *xml = NULL;
+    gchar *url;
+    gchar *escaped_text;
+
+    os = OpensearchItem_construct(o->wpl);
+    OpensearchItem_search(os, search);
+
+    xml = WikipediaXml_construct();
+
+    escaped_text = g_uri_escape_string(os->text, NULL, TRUE);
+    // TODO: remove static local url here
+    url = g_strdup_printf ("%s/w/api.php?action=parse&page=%s&section=0&format=xml&redirects",
+                                  o->wpl->url, escaped_text);
+
+    WikipediaXml_loadUrl(xml, url);
+
+    o->name = WikipediaXml_getAttribute(xml,"/api/parse", "displaytitle");
+    o->content = WikipediaXml_getText(xml, "/api/parse/text");
+
+    WikipediaXml_destruct(xml);
+    OpensearchItem_destruct(os);
+    g_free(escaped_text);
+    g_free(url);
 }

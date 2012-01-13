@@ -48,66 +48,39 @@ void WikipediaLookup_destruct(WikipediaLookup *o)
     }
 }
 
-WikipediaArticle *WikipediaLookup_loadArticle(WikipediaLookup *o, gchar *search)
-{
-    WikipediaArticle *article;
-
-    article = WikipediaArticle_construct();
-
-    return article;
-}
-
 int WikipediaLookup_getLanguages(LinkedList *resultList)
 {
-    // TODO: refactor
     WikipediaXml *xml = NULL;
-    WikipediaXml *subXml = NULL;
     xmlXPathObjectPtr result = NULL;
     int count = 0;
     int index;
     gchar *name;
     gchar *url;
 
-    xmlNode *root_element = NULL;
-    xmlXPathObjectPtr resultUrl = NULL;
-    xmlDoc *subDoc = NULL;
-    xmlNodeSetPtr nodesetUrl= NULL;
-
     WikipediaLookup *wpl;
 
     xml = WikipediaXml_construct();
     // TODO: remove static local url here
-    WikipediaXml_load(xml, "http://de.wikipedia.org/w/api.php?action=sitematrix&format=xml");
+    WikipediaXml_loadUrl(xml, "http://de.wikipedia.org/w/api.php?action=sitematrix&format=xml");
 
-    result = WikipediaXml_getNodeset(xml, "/api/sitematrix/language");
+    result = WikipediaXml_getNodeset(xml, "/api/sitematrix/language | /api/sitematrix/language/site/site[@code=\"wiki\"]/@url");
 
-    for(index = 0; index < result->nodesetval->nodeNr; index++)
+    for(index = 0; index < result->nodesetval->nodeNr-1; index++)
     {
-        subDoc = xmlNewDoc(BAD_CAST "1.0");
-        if(subDoc == NULL){
-            printf("no valid xml");
-        }
-        root_element = result->nodesetval->nodeTab[index];
-        xmlDocSetRootElement(subDoc, root_element);
-        subXml = WikipediaXml_construct();
-        subXml->doc = subDoc;
-        resultUrl = WikipediaXml_getNodeset (subXml, "/language/site/site[@code=\"wiki\"]/@url");
-        if (resultUrl != NULL) {
-            nodesetUrl = resultUrl->nodesetval;
-            if(nodesetUrl->nodeNr)
+        name = (gchar*)xmlGetProp(result->nodesetval->nodeTab[index], (const xmlChar*)"name");
+        if(name != NULL)
+        {
+            url = (gchar*)xmlNodeListGetString(xml->doc, result->nodesetval->nodeTab[index+1]->xmlChildrenNode, 1);
+            if(url != NULL)
             {
-                url = (gchar*)xmlNodeListGetString(subDoc, nodesetUrl->nodeTab[0]->xmlChildrenNode, 1);
-                name = (gchar*)xmlGetProp(result->nodesetval->nodeTab[index], (const xmlChar*)"name");
-
                 wpl = WikipediaLookup_construct(url,name);
-
                 LinkedList_addElement(resultList, wpl);
                 count++;
             }
-            xmlXPathFreeObject (resultUrl);
+            else{
+                g_free(name);
+            }
         }
-        WikipediaXml_destruct(subXml);
-        xmlCleanupParser();
     }
     xmlXPathFreeObject (result);
     WikipediaXml_destruct(xml);

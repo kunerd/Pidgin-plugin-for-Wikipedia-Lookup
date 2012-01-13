@@ -54,7 +54,7 @@ void WikipediaXml_destruct(WikipediaXml *o)
     }
 }
 
-void WikipediaXml_load(WikipediaXml *o, gchar *url)
+void WikipediaXml_loadUrl(WikipediaXml *o, gchar *url)
 {
         CURL *curl_handle=NULL;
 
@@ -77,6 +77,15 @@ void WikipediaXml_load(WikipediaXml *o, gchar *url)
             printf("no valid xml");
         }
         xmlCleanupParser();
+}
+
+void WikipediaXml_loadFile(WikipediaXml *o, gchar *filepath)
+{
+    o->doc = xmlReadFile(filepath, "UTF-8", 0);
+    if(o->doc)
+    {
+        return;
+    }
 }
 
 gchar *WikipediaXml_getText(WikipediaXml *o, gchar *xPath)

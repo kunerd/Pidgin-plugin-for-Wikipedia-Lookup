@@ -1,5 +1,5 @@
 /*
- *  Wikipedia Lookup - A third-party Pidgin plug-in which offers
+ *  Wikipedia Lookup - A third-party Pidgin plug-in which offers 
  *					  you the possibility to look up received and
  *					  typed words on Wikipedia.
  *
@@ -21,27 +21,28 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WPLOOKUP_WPOPENSEARCH_H
-#define WPLOOKUP_WPOPENSEARCH_H
+#ifndef WPL_PIDGIN_H
+#define WPL_PIDGIN_H
 
-#include <gtk/gtk.h>
-#include <stdlib.h>
+#define WPL_PIDGIN_PLUGIN_ID "gtk-hendrik_kunert-wikipedia-lookup"
+#define PURPLE_PLUGINS
 
-#include "wpxml.h"
-#include "wplookup.h"
+#include <pidgin.h>
+#include <gtkconv.h>
+#include <libpurple/version.h>
+#include <pidgin/gtkplugin.h>
 
-typedef struct
-{
-    gchar *text;
-    gchar *description;
-    gchar *url;
+//#include "wplSettings.h"
+
+/*typedef struct {
     WikipediaLookup *wpl;
-} OpensearchItem;
+    PurplePlugin *wplookup_plugin_handle;
+} WplPidginPlugin;
 
-OpensearchItem *OpensearchItem_construct(WikipediaLookup *wpl);
+WplPidginPlugin *PidginPlugin_construct(void);
+void PidginPlugin_destruct(WplPidginPlugin *o);*/
+//PurplePlugin *wplookup_plugin_handle = NULL;
 
-int OpensearchItem_search(OpensearchItem *o, gchar *text);
-
-void OpensearchItem_destruct(OpensearchItem *o);
+//struct settings wpl_settings;
 
 #endif

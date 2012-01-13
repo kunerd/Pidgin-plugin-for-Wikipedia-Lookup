@@ -3,7 +3,6 @@ set_target_properties(wplookup_tests PROPERTIES LINK_FLAGS -Wl,-lcunit)
 target_link_libraries(
     wplookup_tests
     wplookup
-    ${LIBXML2_LIBRARIES}
 )
 
 add_test(wplookup_tests ${EXECUTABLE_OUTPUT_PATH}/wplookup_tests)
@@ -14,6 +13,6 @@ target_link_libraries(
     linkedlist_tests
     wplookup
 )
-add_test(wplookup_tests ${EXECUTABLE_OUTPUT_PATH}/linkedlist_tests)
+add_test(linkedlist_tests ${EXECUTABLE_OUTPUT_PATH}/linkedlist_tests)
 
 set(MEMORYCHECK_COMMAND:FILEPATH=/bin/usr/valgrind)

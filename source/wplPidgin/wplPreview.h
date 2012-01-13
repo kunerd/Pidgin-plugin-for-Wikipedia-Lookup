@@ -21,27 +21,33 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WPLOOKUP_WPOPENSEARCH_H
-#define WPLOOKUP_WPOPENSEARCH_H
+#ifndef WPL_PIDGIN_PREVIEW_H
+#define WPL_PIDGIN_PREVIEW_H
 
 #include <gtk/gtk.h>
-#include <stdlib.h>
+#include <gtkutils.h>
+#include <webkit/webkit.h>
 
-#include "wpxml.h"
-#include "wplookup.h"
+#include "wparticle.h"
 
-typedef struct
-{
-    gchar *text;
-    gchar *description;
-    gchar *url;
-    WikipediaLookup *wpl;
-} OpensearchItem;
 
-OpensearchItem *OpensearchItem_construct(WikipediaLookup *wpl);
+// TODO: remove if no more needed
+struct PreviewData {
+        GtkWidget *parent_window;
+        gchar *search_text;
+};
 
-int OpensearchItem_search(OpensearchItem *o, gchar *text);
+typedef struct {
+    WikipediaArticle *article;
+    gchar *search_text;
+    GtkWidget *parent_window;
+} WplPidginPreview;
 
-void OpensearchItem_destruct(OpensearchItem *o);
+WplPidginPreview *WplPidginPreview_construct();
+void WplPidginPreview_destruct(WplPidginPreview *o);
+
+void wpview_open_preview_window(void *preview_data);
+
+void wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu, WikipediaLookup *wpl);
 
 #endif

@@ -21,28 +21,34 @@
  *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WP_SETTINGS_H
-#define WP_SETTINGS_H
+#ifndef WPL_PIDGIN_SETTINGS_H
+#define WPL_PIDGIN_SETTINGS_H
 
-#include <glib.h>
-#include <glib/gprintf.h>
+#include <gtk/gtk.h>
+//#include <purple.h>
+//#include <pidgin.h>
 #include <gtkutils.h>
-#include <libxml/xpath.h>
-#include <string.h>
-#include <purple.h>
 
-#include "wputility.h"
+#include "wplinkedlist.h"
+#include "wpxml.h"
+#include "wplookup.h"
 
-struct settings
+typedef struct
 {
-	guchar *wikipedia_search_url;
-	guchar *language;
+        guchar *language;
+        guchar *url;
+}WplPidginSettings;
+
+enum
+{
+        COL_NAME = 0,
+        COL_URL,
+        NUM_COLS
 };
 
-extern struct settings wpl_settings;
+WplPidginSettings *WplPidginSettings_construct();
+void WplPidginSettings_destruct(WplPidginSettings *o);
 
-void wpsettings_save_settings();
-void wpsettings_load_settings();
-void wpsettings_change_settings(guchar *name, guchar *url);
+GtkWidget *WplPidginSettings_createWindows(PurplePlugin *plugin);
 
 #endif

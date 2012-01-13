@@ -25,7 +25,7 @@ set (WPLOOKUP_HOMEPAGE "http:\\\\\\\\sourceforge.net/projects/pidginpluginfor")
 #  "${PROJECT_BINARY_DIR}/wpconf.h"
 #  )
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 #add_subdirectory(wplPidgin)
 #add_subdirectory(wpLookup)
@@ -50,6 +50,20 @@ if (CURL_FOUND)
         add_definitions(${CURL_DEFINITIONS})
         include_directories(${CURL_INCLUDE_DIRS})
 endif (CURL_FOUND)
+
+################ Doxygen ###############################
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    add_custom_target(wpldoc ALL
+    ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Generating API documentation with Doxygen" VERBATIM
+)
+endif(DOXYGEN_FOUND)
+
+# used for linking into a shared library
+add_definitions(-fPIC)
 
 add_library(wplookup STATIC wplookup.c ${SOURCE_FILES})
 

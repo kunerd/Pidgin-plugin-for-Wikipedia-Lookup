@@ -23,13 +23,18 @@
 
 #include "wpopensearch.h"
 
-OpensearchItem *OpensearchItem_construct(void)
+OpensearchItem *OpensearchItem_construct(WikipediaLookup *wpl)
 {
     OpensearchItem *o;
     if(!(o=malloc(sizeof(OpensearchItem))))
     {
         return NULL;
     }
+
+    o->text = NULL;
+    o->description = NULL;
+    o->url = NULL;
+    o->wpl = wpl;
 
     return o;
 }
@@ -49,11 +54,13 @@ int OpensearchItem_search(OpensearchItem *o, gchar *text)
 {
     //TODO: remove local static text
     gchar *url;
+    WikipediaXml *xml;
 
-    url = g_strdup_printf ("http://de.wikipedia.org/w/api.php?action=opensearch&search=%s&format=xml",
-                                  text);
-    WikipediaXml *xml = WikipediaXml_construct();
-    WikipediaXml_load(xml, url);
+    url = g_strdup_printf ("%s/w/api.php?action=opensearch&search=%s&format=xml",
+                                  o->wpl->url, text);
+
+    xml = WikipediaXml_construct();
+    WikipediaXml_loadUrl(xml, url);
 
     o->text = WikipediaXml_getText(xml, "/os:SearchSuggestion/os:Section/os:Item/os:Text");
     o->description = WikipediaXml_getText(xml, "/os:SearchSuggestion/os:Section/os:Item/os:Description");

@@ -6,10 +6,11 @@
  */
 
 #include <gtk/gtk.h>
-#include "wpview.h"
-#include "wpsettings.h"
+#include <webkit/webkit.h>
+#include "wplPreview.h"
+//#include "wplSettings.h"
 
-struct settings wpl_settings;
+//struct settings wpl_settings;
 
 /* Another callback */
 static void destroy( GtkWidget *widget,
@@ -22,9 +23,12 @@ int main( int   argc,
           char *argv[] )
 {
     /* GtkWidget is the storage type for widgets */
-    GtkWidget *window, *text_view, *vbox;
+    GtkWidget *window, *text_view, *vbox, *show;
+    WikipediaLookup *wpl;
 
-    wpsettings_load_settings();
+    wpl = WikipediaLookup_construct("http://de.wikipedia.org", "Deutsch");
+
+    //wpsettings_load_settings();
     /* This is called in all GTK applications. Arguments are parsed
      * from the command line and are returned to the application. */
     gtk_init (&argc, &argv);
@@ -55,7 +59,7 @@ int main( int   argc,
     gtk_container_add(GTK_CONTAINER(window), vbox);
 
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 4);
-	gtk_widget_show(vbox);
+    gtk_widget_show(vbox);
 
 
     text_view = gtk_text_view_new();
@@ -63,15 +67,18 @@ int main( int   argc,
 
     gtk_text_view_set_editable (GTK_TEXT_VIEW(text_view), TRUE);
 
-    g_signal_connect(G_OBJECT(text_view),"populate-popup", G_CALLBACK(wpview_right_click_popup), NULL);
+
+    show = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_decorated(GTK_WINDOW(show), FALSE);
+    gtk_widget_show_all(show);
+
+    g_signal_connect(G_OBJECT(text_view), "populate-popup", G_CALLBACK(wpview_right_click_popup), (gpointer)wpl);
 
     gtk_widget_show_all(window);
     /* All GTK applications must have a gtk_main(). Control ends here
      * and waits for an event to occur (like a key press or
      * mouse event). */
     gtk_main ();
-
-    xmlCleanupParser();
 
     return 0;
 }

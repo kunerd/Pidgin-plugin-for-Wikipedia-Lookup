@@ -46,7 +46,9 @@ WikipediaXml *WikipediaXml_construct(void);
 
 void WikipediaXml_destruct(WikipediaXml *o);
 
-void WikipediaXml_load(WikipediaXml *o, gchar *url);
+void WikipediaXml_loadUrl(WikipediaXml *o, gchar *url);
+
+void WikipediaXml_loadFile(WikipediaXml *o, gchar *filepath);
 
 gchar *WikipediaXml_getText(WikipediaXml *o, gchar *xPath);
 

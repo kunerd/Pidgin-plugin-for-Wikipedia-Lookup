@@ -31,6 +31,7 @@
 #include "wplookup.h"
 #include "wpopensearch.h"
 #include "wpxml.h"
+#include "wparticle.h"
 
 /* Pointer to the file used by the tests. */
 static FILE* temp_file = NULL;
@@ -123,6 +124,20 @@ void testWPLOOKUP(void)
 
 void testWPARTICLE(void)
 {
+    WikipediaLookup *wpl;
+    WikipediaArticle *wpa;
+    gchar* url = "http://de.wikipedia.org";
+    gchar* language = "Deutsch";
+
+    wpl = WikipediaLookup_construct(url, language);
+    wpa = WikipediaArticle_construct(wpl);
+
+    WikipediaArticle_load(wpa, "Rory%20Gallagher");
+
+    CU_ASSERT(NULL != wpa->content);
+
+    WikipediaArticle_destruct(wpa);
+    //WikipediaLookup_destruct(wpl);
 }
 
 void testWPXML(void)
@@ -135,7 +150,7 @@ void testWPXML(void)
     url = g_strdup_printf ("http://de.wikipedia.org/w/api.php?action=opensearch&search=%s&format=xml",
                                      "Rory%20Gallagher");
 
-    WikipediaXml_load(xml, url);
+    WikipediaXml_loadUrl(xml, url);
     text = WikipediaXml_getText(xml, "/os:SearchSuggestion/os:Section/os:Item/os:Text");
     CU_ASSERT(0 == g_strcmp0((gchar*)"Rory Gallagher", text));
     g_free(text);
@@ -151,12 +166,18 @@ void testWPXML(void)
 void testOPENSEARCH(void)
 {
     OpensearchItem *os;
-    os = OpensearchItem_construct();
+    WikipediaLookup *wpl;
+
+    wpl = WikipediaLookup_construct("http://de.wikipedia.org", "Deutsch");
+    os = OpensearchItem_construct(wpl);
+
     OpensearchItem_search(os, "Rory%20Gallagher");
     CU_ASSERT(0 == g_strcmp0("Rory Gallagher", os->text));
     CU_ASSERT(NULL != os->description);
     CU_ASSERT(0 == g_strcmp0("http://de.wikipedia.org/wiki/Rory_Gallagher", os->url));
+
     OpensearchItem_destruct(os);
+    //WikipediaLookup_destruct(wpl);
 }
 
 /* The main() function for setting up and running the tests.
