@@ -10,6 +10,7 @@ typedef struct
 {
     gchar *name;
     gchar *content;
+    gchar *url;
     WikipediaLookup *wpl;
 } WikipediaArticle;
 

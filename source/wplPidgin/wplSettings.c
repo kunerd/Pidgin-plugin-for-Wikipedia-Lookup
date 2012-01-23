@@ -23,38 +23,38 @@
 
 #include "wplSettings.h"
 
-GtkWidget *WpPidginSettings_createViewAndModel();
-
-GtkWidget *WplPidginSettings_createWindows(PurplePlugin *plugin)
+gboolean
+WplPidginSettings_selectionCallback (GtkTreeSelection *selection,
+                               GtkTreeModel     *model,
+                               GtkTreePath      *path,
+                               gboolean          path_currently_selected,
+                               WplPidginSettings *o)
 {
-        GtkWidget *ret, *vbox, *win, *language_list;
+        GtkTreeIter iter;
 
-        ret = gtk_vbox_new(FALSE, PIDGIN_HIG_CAT_SPACE);
-        gtk_container_set_border_width (GTK_CONTAINER(ret), PIDGIN_HIG_BORDER);
+        if (gtk_tree_model_get_iter(model, &iter, path))
+        {
+                guchar *language;
+                guchar *url;
 
-        vbox = pidgin_make_frame(ret, "Settings");
-        gtk_container_set_border_width(GTK_CONTAINER(vbox), 4);
-        gtk_widget_show(vbox);
+                gtk_tree_model_get(model, &iter, COL_NAME, &language, -1);
+                gtk_tree_model_get(model, &iter, COL_URL, &url, -1);
 
-        win = gtk_scrolled_window_new(0, 0);
-        gtk_box_pack_start(GTK_BOX(vbox), win, TRUE, TRUE, 0);
-        gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(win), GTK_SHADOW_IN);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(win),
-                        GTK_POLICY_NEVER,
-                        GTK_POLICY_ALWAYS);
+                if (!path_currently_selected)
+                {
+                    g_free(o->wpl->language);
+                    g_free(o->wpl->url);
 
-        gtk_widget_show(win);
+                    o->wpl->language = language;
+                    o->wpl->url = url;
+                }
+        }
 
-        language_list = WpPidginSettings_createViewAndModel();
-        gtk_container_add(GTK_CONTAINER(win), language_list);
-
-        gtk_widget_show(language_list);
-
-        gtk_widget_show_all(ret);
-        return ret;
+        return TRUE; /* allow selection state to change */
 }
 
-GtkWidget *WpPidginSettings_createViewAndModel()
+
+GtkWidget *WplPidginSettings_createViewAndModel(WplPidginSettings *o)
 {
         GtkCellRenderer *renderer = NULL;
         GtkTreeModel *model = NULL;
@@ -104,7 +104,13 @@ GtkWidget *WpPidginSettings_createViewAndModel()
                                     COL_NAME, wpl->language,
                                     COL_URL, wpl->url,
                                     -1);
-                printf("%s, %s\n", wpl->language, wpl->url);
+
+                /* preselection */
+                if(0 == g_strcmp0(wpl->language, o->wpl->language))
+                {
+                    sel_iter = iter;
+                }
+
                 WikipediaLookup_destruct(wpl);
 
                 iterator = iterator->next;
@@ -117,7 +123,8 @@ GtkWidget *WpPidginSettings_createViewAndModel()
 
 
         selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-        //gtk_tree_selection_set_select_function(selection, wplanguage_selection_callback, NULL, NULL);
+
+        gtk_tree_selection_set_select_function(selection, (GtkTreeSelectionFunc)WplPidginSettings_selectionCallback, (gpointer) o, NULL);
 
         gtk_tree_selection_set_mode(selection,
                                     GTK_SELECTION_SINGLE);
@@ -125,12 +132,12 @@ GtkWidget *WpPidginSettings_createViewAndModel()
         gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
 
         /* preselection */
-        /*gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), &sel_iter);
+        gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), &sel_iter);
         gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(view),
                                      gtk_tree_model_get_path(model, &sel_iter),
                                      NULL,
                                      TRUE,0.5,0);
-*/
+
         /* The tree view has acquired its own reference to the
          *  model, so we can drop ours. That way the model will
          *  be freed automatically when the tree view is destroyed */
@@ -155,6 +162,8 @@ WplPidginSettings *WplPidginSettings_construct()
         return NULL;
     }
 
+    o->wpl = WikipediaLookup_construct(NULL,NULL);
+
     return o;
 }
 
@@ -168,58 +177,18 @@ WplPidginSettings *WplPidginSettings_construct()
  */
 void WplPidginSettings_destruct(WplPidginSettings *o)
 {	
-    if(o)
+    if(o != NULL)
     {
-        g_free(o->language);
-        g_free(o->url);
+        WikipediaLookup_destruct(o->wpl);
         free(o);
     }
-}
-
-/* Function : wpsettings_change_settings
- 	-----------------------------------------------------------
-    Input    : 	guchar *name	-> language name
- 				guchar *url		-> Wikipedia url for language
- 
-    Output   : 	void
-	 
-    Procedure: 	allocate the memory for the settings and store them in settings
- 				struct
- */
-void wpsettings_change_settings(guchar *name, guchar *url)
-{
-	int size = 0;
-
-	/*name */
-	/* add 1 for \0 */
-        //size = strlen((gchar*)name)+1;
-
-        /*if(wpl_settings.language != NULL)
-                g_free(wpl_settings.language);*/
-
-        //wpl_settings.language = (guchar *) malloc(size*sizeof(guchar));
-	
-        /*if(wpl_settings.language != NULL)
-	{
-		g_sprintf((gchar*)wpl_settings.language,"%s", (gchar*)name);
-        }*/
-
-	/* url */
-        //size = strlen((gchar*)url)+1;
-        /*if(wpl_settings.wikipedia_search_url != NULL)
-                g_free(wpl_settings.wikipedia_search_url);*/
-
-        //wpl_settings.wikipedia_search_url = (guchar *) malloc(size*sizeof(guchar));
-	
-        /*if(wpl_settings.wikipedia_search_url != NULL)
-	{
-		g_sprintf((gchar*)wpl_settings.wikipedia_search_url,"%s", (gchar*)url);
-        }*/
 }
 
 void WplPidginSettings_loadFromFile(WplPidginSettings *o)
 {
     gchar *filepath = NULL;
+    gchar *temp = NULL;
+    guint maxOpenSearchResults;
     WikipediaXml *xml = NULL;
 
     xml = WikipediaXml_construct();
@@ -227,8 +196,19 @@ void WplPidginSettings_loadFromFile(WplPidginSettings *o)
     WikipediaXml_loadFile(xml, filepath);
     g_free(filepath);
 
-    o->url = WikipediaXml_getText(xml, "/settings/url");
-    o->language = WikipediaXml_getAttribute(xml, "/settings/url", "language");
+    o->wpl->url = WikipediaXml_getText(xml, "/settings/url");
+    o->wpl->language = WikipediaXml_getAttribute(xml, "/settings/url", "language");
+
+    temp = WikipediaXml_getText(xml, "/settings/limit");
+    if(temp)
+    {
+        maxOpenSearchResults = g_ascii_strtoll(temp, NULL, 10);
+        if(maxOpenSearchResults > 0)
+        {
+            o->wpl->opensearchLimit = maxOpenSearchResults;
+        }
+    }
+    g_free(temp);
 
     /*free the document */
     WikipediaXml_destruct(xml);
@@ -243,9 +223,11 @@ void WplPidginSettings_loadFromFile(WplPidginSettings *o)
 void WplPidginSettings_saveToFile(WplPidginSettings *o)
 {
     gchar *filename = NULL;
+    gchar *temp = NULL;
     xmlDocPtr doc = NULL;       	/* document pointer */
-    xmlNodePtr root_node = NULL,
-    url_node = NULL;                    /* node pointers */
+    xmlNodePtr root_node = NULL;
+    xmlNodePtr url_node = NULL;         /* node pointers */
+    xmlNodePtr max_opensearch_result = NULL;
 
    /*
     * Creates a new document, a node and set it as a root node
@@ -259,10 +241,17 @@ void WplPidginSettings_saveToFile(WplPidginSettings *o)
     * of root_node node.
     */
    url_node = xmlNewChild(root_node, NULL, BAD_CAST "url",
-               BAD_CAST o->url);
+               BAD_CAST o->wpl->url);
 
-   xmlNewProp(url_node, BAD_CAST "language", BAD_CAST o->language);
+   xmlNewProp(url_node, BAD_CAST "language", BAD_CAST o->wpl->language);
 
+   temp = g_strdup_printf("%d", o->wpl->opensearchLimit);
+   if(temp)
+   {
+        max_opensearch_result = xmlNewChild(root_node, NULL, BAD_CAST "limit",
+                                               BAD_CAST temp);
+        g_free(temp);
+   }
    /*
     * Dumping document to stdio or file
     */

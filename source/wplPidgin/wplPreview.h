@@ -46,8 +46,8 @@ typedef struct {
 WplPidginPreview *WplPidginPreview_construct();
 void WplPidginPreview_destruct(WplPidginPreview *o);
 
-void wpview_open_preview_window(void *preview_data);
+void WplPidginPreview_openWindow(WplPidginPreview *o);
 
-void wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu, WikipediaLookup *wpl);
+void WplPidginPreview_rightClickPopup(GtkTextView *text_view, GtkMenu *menu, WikipediaLookup *wpl);
 
 #endif

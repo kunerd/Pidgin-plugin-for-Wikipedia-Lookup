@@ -23,6 +23,7 @@
 
 #include <libxml/xpath.h>
 #include "wplookup.h"
+#include "wpopensearch.h"
 #include "wpxml.h"
 
 WikipediaLookup *WikipediaLookup_construct(gchar *url, gchar *language)
@@ -34,13 +35,14 @@ WikipediaLookup *WikipediaLookup_construct(gchar *url, gchar *language)
     }
     o->url = url;
     o->language = language;
+    o->opensearchLimit = 10;
 
     return o;
 }
 
 void WikipediaLookup_destruct(WikipediaLookup *o)
 {
-    if(o)
+    if(o != NULL)
     {
         g_free(o->language);
         g_free(o->url);
@@ -48,6 +50,7 @@ void WikipediaLookup_destruct(WikipediaLookup *o)
     }
 }
 
+/* TODO use GList */
 int WikipediaLookup_getLanguages(LinkedList *resultList)
 {
     WikipediaXml *xml = NULL;
@@ -85,5 +88,98 @@ int WikipediaLookup_getLanguages(LinkedList *resultList)
     xmlXPathFreeObject (result);
     WikipediaXml_destruct(xml);
     return count;
+}
+
+static gchar *WikipediaLookup_getClickedWord(GtkTextView *text_view)
+{
+    int x = 0;
+    int y = 0;
+    int x1 ;
+    int y1 ;
+    GtkTextIter iter ;
+    GtkTextIter startiter;
+    GtkTextIter enditer;
+    GtkTextBuffer *textBuffer = NULL;
+
+    if(text_view == NULL)
+    {
+        return NULL;
+    }
+    gtk_widget_get_pointer(GTK_WIDGET(text_view), &x, &y);
+
+    gtk_text_view_window_to_buffer_coords(GTK_TEXT_VIEW(text_view), GTK_TEXT_WINDOW_WIDGET,
+                                          x , y , &x1 , &y1 );
+
+    gtk_text_view_get_iter_at_location (GTK_TEXT_VIEW(text_view), &iter , x1 , y1 ) ;
+
+    startiter = iter;
+    enditer = iter;
+
+    if ( gtk_text_iter_starts_word ( &iter ) )
+    {
+        gtk_text_iter_forward_word_end ( &enditer ) ;
+    }
+    else if ( gtk_text_iter_inside_word ( &iter ) )
+    {
+        gtk_text_iter_forward_word_end ( &enditer ) ;
+        gtk_text_iter_backward_word_start ( &startiter ) ;
+    }
+    else if ( gtk_text_iter_ends_word ( &iter ) )
+    {
+        gtk_text_iter_backward_word_start ( &startiter ) ;
+    }
+    else
+    {
+        return NULL;
+    }
+
+    textBuffer = gtk_text_view_get_buffer(text_view);
+    if(textBuffer == NULL)
+    {
+        return NULL;
+    }
+
+    return gtk_text_buffer_get_text ( textBuffer , &startiter , &enditer, FALSE);
+}
+
+void WikipediaLookup_rightClickPopup(GtkTextView *text_view, GtkMenu *menu, WikipediaLookup *o)
+{
+    gchar * word;
+    OpenSearch *os;
+    GList *iterator;
+    OpenSearchItem *item;
+    GtkWidget *menu_entry = NULL;
+    GtkWidget *parent = NULL;
+
+    word = WikipediaLookup_getClickedWord(text_view);
+
+    if(word == NULL)
+    {
+        return;
+    }
+
+    os = OpenSearch_construct(o);
+    OpenSearch_search(os, word);
+
+    for(iterator = os->list; iterator != NULL; iterator = g_list_next(iterator))
+    {
+        item = (OpenSearchItem *)iterator->data;
+        menu_entry = gtk_menu_item_new_with_label(item->text);
+        gtk_widget_set_tooltip_text(menu_entry, item->description);
+
+        gtk_menu_append(GTK_MENU(menu),menu_entry);
+
+        parent = gtk_widget_get_toplevel (GTK_WIDGET(text_view));
+        if (gtk_widget_is_toplevel (parent))
+        {
+                g_signal_connect(G_OBJECT(menu_entry), "activate", G_CALLBACK(o->opensearchCallback), (gpointer) g_strdup(item->url));
+
+                g_print("%s\n", item->url);
+                gtk_widget_show(menu_entry);
+        }
+    }
+
+    g_free(word);
+    OpenSearch_destruct(os);
 }
 

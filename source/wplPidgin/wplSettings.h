@@ -25,9 +25,10 @@
 #define WPL_PIDGIN_SETTINGS_H
 
 #include <gtk/gtk.h>
+#include <gtkutils.h>
+
 //#include <purple.h>
 //#include <pidgin.h>
-#include <gtkutils.h>
 
 #include "wplinkedlist.h"
 #include "wpxml.h"
@@ -35,8 +36,7 @@
 
 typedef struct
 {
-        guchar *language;
-        guchar *url;
+    WikipediaLookup *wpl;
 }WplPidginSettings;
 
 enum
@@ -49,6 +49,11 @@ enum
 WplPidginSettings *WplPidginSettings_construct();
 void WplPidginSettings_destruct(WplPidginSettings *o);
 
-GtkWidget *WplPidginSettings_createWindows(PurplePlugin *plugin);
+//GtkWidget *WplPidginSettings_createWindows(WplPidginSettings *o, PurplePlugin *plugin);
+GtkWidget *WplPidginSettings_createViewAndModel(WplPidginSettings *o);
+
+void WplPidginSettings_loadFromFile(WplPidginSettings *o);
+void WplPidginSettings_saveToFile(WplPidginSettings *o);
+
 
 #endif

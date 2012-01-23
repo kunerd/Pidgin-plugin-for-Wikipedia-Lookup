@@ -34,6 +34,7 @@ WikipediaArticle *WikipediaArticle_construct(WikipediaLookup *wpl)
 
     o->name = NULL;
     o->content = NULL;
+    o->url = NULL;
     o->wpl = wpl;
 
     return o;
@@ -45,23 +46,25 @@ void WikipediaArticle_destruct(WikipediaArticle *o)
     {
         g_free(o->name);
         g_free(o->content);
+        g_free(o->url);
         free(o);
     }
 }
 
 void WikipediaArticle_load(WikipediaArticle *o, gchar *search)
 {
-    OpensearchItem *os;
+    OpenSearchItem *os;
     WikipediaXml *xml = NULL;
     gchar *url;
     gchar *escaped_text;
 
-    os = OpensearchItem_construct(o->wpl);
-    OpensearchItem_search(os, search);
+    escaped_text = g_uri_escape_string(search, NULL, TRUE);
+
+   // os = OpenSearchItem_construct(o->wpl);
+   // OpensearchItem_search(os, escaped_text);
 
     xml = WikipediaXml_construct();
 
-    escaped_text = g_uri_escape_string(os->text, NULL, TRUE);
     // TODO: remove static local url here
     url = g_strdup_printf ("%s/w/api.php?action=parse&page=%s&section=0&format=xml&redirects",
                                   o->wpl->url, escaped_text);
@@ -70,9 +73,10 @@ void WikipediaArticle_load(WikipediaArticle *o, gchar *search)
 
     o->name = WikipediaXml_getAttribute(xml,"/api/parse", "displaytitle");
     o->content = WikipediaXml_getText(xml, "/api/parse/text");
+    o->url = g_strdup_printf("%s", os->url);
 
     WikipediaXml_destruct(xml);
-    OpensearchItem_destruct(os);
+    OpenSearchItem_destruct(os);
     g_free(escaped_text);
     g_free(url);
 }

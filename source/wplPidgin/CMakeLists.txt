@@ -10,7 +10,7 @@ set (wplookup_VERSION_PATCH 0)
 
 set (SOURCE_FILES
     wplPreview.c
-    #wplSettings.c
+    wplSettings.c
 )
 
 set (WPLOOKUP_CONTACT "Hendrik Kunert <kunerd@users.sourceforge.net>")
@@ -93,7 +93,6 @@ if(DOXYGEN_FOUND)
 endif(DOXYGEN_FOUND)
 
 add_library(wplPidgin SHARED wplPidgin.c ${SOURCE_FILES})
-
 target_link_libraries(
         wplPidgin
         wplookup
@@ -121,6 +120,9 @@ target_link_libraries(
         ${PURPLE_LIBRARIES}
         ${GIO2_LIBRARIES}
 )
+
+enable_testing()
+add_subdirectory(tests)
 
 if(UNIX)
         message("Installer will be build for Linux only")
@@ -170,6 +172,3 @@ endif(UNIX)
 
 include(CPack)
 
-
-#enable_testing()
-#add_subdirectory(tests)

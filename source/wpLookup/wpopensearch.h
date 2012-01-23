@@ -35,13 +35,21 @@ typedef struct
     gchar *text;
     gchar *description;
     gchar *url;
+
+} OpenSearchItem;
+
+typedef struct
+{
+    GList *list;    /** list of OpenSearchItems */
     WikipediaLookup *wpl;
-} OpensearchItem;
+} OpenSearch;
 
-OpensearchItem *OpensearchItem_construct(WikipediaLookup *wpl);
+OpenSearchItem *OpenSearchItem_construct();
+void OpenSearchItem_destruct(OpenSearchItem *o);
 
-int OpensearchItem_search(OpensearchItem *o, gchar *text);
+OpenSearch *OpenSearch_construct(WikipediaLookup *wpl);
+void OpenSearch_destruct(OpenSearch *o);
 
-void OpensearchItem_destruct(OpensearchItem *o);
+int OpenSearch_search(OpenSearch *o, gchar *text);
 
 #endif

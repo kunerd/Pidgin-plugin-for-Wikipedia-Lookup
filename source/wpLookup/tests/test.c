@@ -124,7 +124,7 @@ void testWPLOOKUP(void)
 
 void testWPARTICLE(void)
 {
-    WikipediaLookup *wpl;
+    /*WikipediaLookup *wpl;
     WikipediaArticle *wpa;
     gchar* url = "http://de.wikipedia.org";
     gchar* language = "Deutsch";
@@ -132,12 +132,12 @@ void testWPARTICLE(void)
     wpl = WikipediaLookup_construct(url, language);
     wpa = WikipediaArticle_construct(wpl);
 
-    WikipediaArticle_load(wpa, "Rory%20Gallagher");
+    WikipediaArticle_load(wpa, "Rory Gallagher");
 
     CU_ASSERT(NULL != wpa->content);
 
     WikipediaArticle_destruct(wpa);
-    //WikipediaLookup_destruct(wpl);
+    //WikipediaLookup_destruct(wpl);*/
 }
 
 void testWPXML(void)
@@ -165,19 +165,35 @@ void testWPXML(void)
 
 void testOPENSEARCH(void)
 {
-    OpensearchItem *os;
+    OpenSearch *os;
     WikipediaLookup *wpl;
+    gint length = 0;
+    GList *iterator;
+    OpenSearchItem *item;
+    gchar *url;
+    gchar *name;
 
-    wpl = WikipediaLookup_construct("http://de.wikipedia.org", "Deutsch");
-    os = OpensearchItem_construct(wpl);
+    url = g_strdup("http://de.wikipedia.org");
+    name = g_strdup("Deutsch");
 
-    OpensearchItem_search(os, "Rory%20Gallagher");
-    CU_ASSERT(0 == g_strcmp0("Rory Gallagher", os->text));
-    CU_ASSERT(NULL != os->description);
-    CU_ASSERT(0 == g_strcmp0("http://de.wikipedia.org/wiki/Rory_Gallagher", os->url));
+    wpl = WikipediaLookup_construct(url, name);
 
-    OpensearchItem_destruct(os);
-    //WikipediaLookup_destruct(wpl);
+    os = OpenSearch_construct(wpl);
+
+    length = OpenSearch_search(os, "Rory Gallagher");
+
+    printf("length: %d -> ", length);
+
+    /*for(iterator = os->list; iterator != NULL; iterator = g_list_next(iterator))
+    {
+        item = (OpenSearchItem *)iterator->data;
+        printf("\nName: %s\nDesciption: %s\nUrl %s\n", item->text, item->description, item->url);
+    }*/
+
+    CU_ASSERT(2 == length);
+
+    OpenSearch_destruct(os);
+    WikipediaLookup_destruct(wpl);
 }
 
 /* The main() function for setting up and running the tests.

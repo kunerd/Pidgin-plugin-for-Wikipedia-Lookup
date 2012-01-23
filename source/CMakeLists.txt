@@ -5,6 +5,7 @@ include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/wpLookup)
 include_directories(${PROJECT_BINARY_DIR})
 
+
 #set (wplookup_VERSION_MAJOR 0)
 #set (wplookup_VERSION_MINOR 2)
 #set (wplookup_VERSION_PATCH 0)

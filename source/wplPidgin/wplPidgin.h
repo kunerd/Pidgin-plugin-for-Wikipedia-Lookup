@@ -28,21 +28,18 @@
 #define PURPLE_PLUGINS
 
 #include <pidgin.h>
-#include <gtkconv.h>
 #include <libpurple/version.h>
 #include <pidgin/gtkplugin.h>
 
-//#include "wplSettings.h"
+//#include "wplPreview.h"
+#include "wplSettings.h"
 
-/*typedef struct {
-    WikipediaLookup *wpl;
+typedef struct {
+    WplPidginSettings *settings;
     PurplePlugin *wplookup_plugin_handle;
 } WplPidginPlugin;
 
-WplPidginPlugin *PidginPlugin_construct(void);
-void PidginPlugin_destruct(WplPidginPlugin *o);*/
-//PurplePlugin *wplookup_plugin_handle = NULL;
-
-//struct settings wpl_settings;
+WplPidginPlugin *WplPidginPlugin_construct(void);
+void WplPidginPlugin_destruct(WplPidginPlugin *o);
 
 #endif

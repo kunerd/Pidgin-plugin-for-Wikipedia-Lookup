@@ -33,6 +33,8 @@ typedef struct
 {
     gchar *url;
     gchar *language;
+    guint opensearchLimit;
+    GCallback opensearchCallback;
 } WikipediaLookup;
 
 WikipediaLookup *WikipediaLookup_construct(gchar *url, gchar *language);
@@ -40,5 +42,7 @@ WikipediaLookup *WikipediaLookup_construct(gchar *url, gchar *language);
 void WikipediaLookup_destruct(WikipediaLookup *o);
 
 int WikipediaLookup_getLanguages(LinkedList *resultList);
+
+void WikipediaLookup_rightClickPopup(GtkTextView *text_view, GtkMenu *menu, WikipediaLookup *o);
 
 #endif

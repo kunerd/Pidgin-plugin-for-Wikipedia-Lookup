@@ -46,18 +46,17 @@ void WplPidginPreview_destruct(WplPidginPreview *o)
     }
 }
 
-void wpview_open_preview_window(void *preview_data)
+void WplPidginPreview_openWindow(WplPidginPreview *o)
 {
     GtkWidget *win, *dialog, *content_area, *web_view;
     gchar *webpage = NULL;
-    WplPidginPreview *o;
-
-    o = (WplPidginPreview *)preview_data;
 
     /* Create the widgets */
     dialog = gtk_dialog_new_with_buttons ("preview",
                                           GTK_WINDOW(o->parent_window),
                                           GTK_DIALOG_DESTROY_WITH_PARENT,
+                                          "open in browser",
+                                          GTK_RESPONSE_CANCEL,
                                           GTK_STOCK_OK,
                                           GTK_RESPONSE_NONE,
                                           NULL);
@@ -93,14 +92,14 @@ void wpview_open_preview_window(void *preview_data)
                                      o->article->content,
                                      "text/html",
                                      "UTF-8",
-                                     "file://");
+                                     o->article->url);
         g_free(webpage);
     }
 
     WplPidginPreview_destruct(o);
 }
 
-void wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu, WikipediaLookup *wpl)
+void WplPidginPreview_rightClickPopup(GtkTextView *text_view, GtkMenu *menu, WikipediaLookup *wpl)
 {
     GtkTextBuffer *buffer = NULL;
     GtkWidget *menu_entry = NULL;
@@ -133,7 +132,7 @@ void wpview_right_click_popup(GtkTextView *text_view, GtkMenu *menu, WikipediaLo
 
         if (gtk_widget_is_toplevel (parent))
         {
-            g_signal_connect_swapped( GTK_OBJECT(menu_entry), "activate", GTK_SIGNAL_FUNC(wpview_open_preview_window), (gpointer) preview);
+            g_signal_connect_swapped( GTK_OBJECT(menu_entry), "activate", GTK_SIGNAL_FUNC(WplPidginPreview_openWindow), (gpointer) preview);
             gtk_widget_show(menu_entry);
         }
     }

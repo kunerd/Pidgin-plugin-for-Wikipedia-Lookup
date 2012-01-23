@@ -23,10 +23,10 @@
 
 #include "wpopensearch.h"
 
-OpensearchItem *OpensearchItem_construct(WikipediaLookup *wpl)
+OpenSearchItem *OpenSearchItem_construct()
 {
-    OpensearchItem *o;
-    if(!(o=malloc(sizeof(OpensearchItem))))
+    OpenSearchItem *o;
+    if(!(o=malloc(sizeof(OpenSearchItem))))
     {
         return NULL;
     }
@@ -34,12 +34,11 @@ OpensearchItem *OpensearchItem_construct(WikipediaLookup *wpl)
     o->text = NULL;
     o->description = NULL;
     o->url = NULL;
-    o->wpl = wpl;
 
     return o;
 }
 
-void OpensearchItem_destruct(OpensearchItem *o)
+void OpenSearchItem_destruct(OpenSearchItem *o)
 {
     if(o)
     {
@@ -50,22 +49,81 @@ void OpensearchItem_destruct(OpensearchItem *o)
     }
 }
 
-int OpensearchItem_search(OpensearchItem *o, gchar *text)
+OpenSearch *OpenSearch_construct(WikipediaLookup *wpl)
 {
-    //TODO: remove local static text
-    gchar *url;
-    WikipediaXml *xml;
+    OpenSearch *o;
+    if(!(o=malloc(sizeof(OpenSearch))))
+    {
+        return NULL;
+    }
 
-    url = g_strdup_printf ("%s/w/api.php?action=opensearch&search=%s&format=xml",
-                                  o->wpl->url, text);
+    o->list = NULL;
+    o->wpl = wpl;
+
+    return o;
+}
+
+void OpenSearch_destruct(OpenSearch *o)
+{
+    if(o)
+    {
+        g_list_free_full(o->list, (GDestroyNotify)OpenSearchItem_destruct);
+        free(o);
+    }
+}
+
+int OpenSearch_search(OpenSearch *o, gchar *text)
+{
+    //TODO: remove local static text, refactor
+    gchar *url;
+    gchar *escaped_text;
+    WikipediaXml *xml;
+    gint index = 0;
+    OpenSearchItem *item;
+    xmlXPathObjectPtr result = NULL;
+    xmlNodePtr cur;
+
+    escaped_text = g_uri_escape_string(text, NULL, TRUE);
+
+    url = g_strdup_printf ("%s/w/api.php?action=opensearch&search=%s&limit=%d&format=xml",
+                                  o->wpl->url, escaped_text, o->wpl->opensearchLimit);
 
     xml = WikipediaXml_construct();
     WikipediaXml_loadUrl(xml, url);
 
-    o->text = WikipediaXml_getText(xml, "/os:SearchSuggestion/os:Section/os:Item/os:Text");
-    o->description = WikipediaXml_getText(xml, "/os:SearchSuggestion/os:Section/os:Item/os:Description");
-    o->url = WikipediaXml_getText(xml, "/os:SearchSuggestion/os:Section/os:Item/os:Url");
+    result = WikipediaXml_getNodeset(xml, "/os:SearchSuggestion/os:Section/os:Item");
 
-    g_free(url);
+    if (result ==NULL)
+        return 0;
+
+    for(index = 0; index < result->nodesetval->nodeNr; index++)
+    {
+        cur = result->nodesetval->nodeTab[index]->xmlChildrenNode;
+
+        item = OpenSearchItem_construct();
+        while(cur != NULL)
+        {
+            if (!strcmp(cur->name, "Text"))
+            {
+                item->text = xmlNodeListGetString(xml->doc, cur->xmlChildrenNode, 1);
+            }
+            if (!strcmp(cur->name, "Description"))
+            {
+                item->description = xmlNodeListGetString(xml->doc, cur->xmlChildrenNode, 1);
+            }
+            if (!strcmp(cur->name, "Url"))
+            {
+                item->url = xmlNodeListGetString(xml->doc, cur->xmlChildrenNode, 1);
+            }
+            cur = cur->next;
+        }
+        o->list = g_list_append(o->list, (gpointer) item);
+    }
+    xmlXPathFreeObject (result);
     WikipediaXml_destruct(xml);
+    g_free(escaped_text);
+    g_free(url);
+
+    return g_list_length(o->list);
+
 }
