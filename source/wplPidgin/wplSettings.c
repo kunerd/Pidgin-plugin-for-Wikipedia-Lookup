@@ -1,24 +1,23 @@
 /*
- *  Wikipedia Lookup - A third-party Pidgin plug-in which offers 
- *					  you the possibility to look up received and
- *					  typed words on Wikipedia.
+ *  Wikipedia Lookup - A third-party Pidgin plug-in which offers
+ *  you the possibility to look up received and typed words on Wikipedia.
  *
- *  Copyright (C) 2011 Hendrik Kunert kunerd@users.sourceforge.net
+ *  Copyright (C) 2011, 2012 Hendrik Kunert kunerd@users.sourceforge.net
  *
- *  This file is part of wplookup.
+ *  This file is part of Wikipedia Lookup.
  *
- *  wplookup is free software: you can redistribute it and/or modify
+ *  Wikipedia Lookup is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  Foobar is distributed in the hope that it will be useful,
+ *  Wikipedia Lookup is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Wikipedia Lookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "wplSettings.h"
@@ -53,7 +52,8 @@ WplPidginSettings_selectionCallback (GtkTreeSelection *selection,
         return TRUE; /* allow selection state to change */
 }
 
-
+/** Creates the language list and the model for it.
+  */
 GtkWidget *WplPidginSettings_createViewAndModel(WplPidginSettings *o)
 {
         GtkCellRenderer *renderer = NULL;
@@ -63,7 +63,7 @@ GtkWidget *WplPidginSettings_createViewAndModel(WplPidginSettings *o)
         GtkTreeIter sel_iter;
         GtkListStore *store = NULL;
         GtkTreeIter iter;
-        LinkedList *list, *iterator;
+        GList *list, *iterator;
         WikipediaLookup *wpl;
 
         view = gtk_tree_view_new ();
@@ -91,13 +91,10 @@ GtkWidget *WplPidginSettings_createViewAndModel(WplPidginSettings *o)
                                                      "text", COL_URL,
                                                      NULL);
 
-        list = LinkedList_construct(NULL);
-        if(WikipediaLookup_getLanguages(list))
+        list = WikipediaLookup_getLanguages();
+        for(iterator = list; iterator != NULL; iterator = g_list_next(iterator))
         {
-            iterator = list;
-            while(iterator != NULL)
-            {
-                wpl = (WikipediaLookup*)(iterator->data);
+                wpl = (WikipediaLookup*) iterator->data;
 
                 gtk_list_store_append (store, &iter);
                 gtk_list_store_set (store, &iter,
@@ -114,9 +111,8 @@ GtkWidget *WplPidginSettings_createViewAndModel(WplPidginSettings *o)
                 WikipediaLookup_destruct(wpl);
 
                 iterator = iterator->next;
-            }
-            LinkedList_destruct(list);
         }
+        g_list_free(list);
 
         model = GTK_TREE_MODEL (store);
 
@@ -147,13 +143,6 @@ GtkWidget *WplPidginSettings_createViewAndModel(WplPidginSettings *o)
         return view;
 }
 
- /* Function : wpsettings_save_settings()
- 	-----------------------------------------------------------
-    Input    : 	void
-    Output   : 	void
-	 
-    Procedure: 	save all plugin settings to an xml file
- */
 WplPidginSettings *WplPidginSettings_construct()
 {
     WplPidginSettings *o;
@@ -167,14 +156,6 @@ WplPidginSettings *WplPidginSettings_construct()
     return o;
 }
 
-
-/* Function : wpsettings_load_settings()
- 	-----------------------------------------------------------
-    Input    : 	void
-    Output   : 	void
-	 
-    Procedure: 	loads all plugin settings from an xml file
- */
 void WplPidginSettings_destruct(WplPidginSettings *o)
 {	
     if(o != NULL)
@@ -184,6 +165,8 @@ void WplPidginSettings_destruct(WplPidginSettings *o)
     }
 }
 
+/** Load all plugin settings to an xml file.
+*/
 void WplPidginSettings_loadFromFile(WplPidginSettings *o)
 {
     gchar *filepath = NULL;
@@ -219,7 +202,9 @@ void WplPidginSettings_loadFromFile(WplPidginSettings *o)
     xmlCleanupParser();
 }
 
-// TODO: refactor, like load from file
+
+/** Save all plugin settings to an xml file.
+*/
 void WplPidginSettings_saveToFile(WplPidginSettings *o)
 {
     gchar *filename = NULL;

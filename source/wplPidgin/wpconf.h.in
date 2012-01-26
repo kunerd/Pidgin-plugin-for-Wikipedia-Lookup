@@ -1,9 +1,31 @@
-#define wplookup_VERSION_MAJOR @wplookup_VERSION_MAJOR@
-#define wplookup_VERSION_MINOR @wplookup_VERSION_MINOR@
-#define wplookup_VERSION_PATCH @wplookup_VERSION_PATCH@
+/*
+ *  Wikipedia Lookup - A third-party Pidgin plug-in which offers
+ *  you the possibility to look up received and typed words on Wikipedia.
+ *
+ *  Copyright (C) 2011, 2012 Hendrik Kunert kunerd@users.sourceforge.net
+ *
+ *  This file is part of Wikipedia Lookup.
+ *
+ *  Wikipedia Lookup is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Wikipedia Lookup is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Wikipedia Lookup.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#if (wplookup_VERSION_PATCH == 0)
-#define VERSION_NUMBER "@wplookup_VERSION_MAJOR@.@wplookup_VERSION_MINOR@"
+#define wplPidgin_VERSION_MAJOR @wplPidgin_VERSION_MAJOR@
+#define wplPidgin_VERSION_MINOR @wplPidgin_VERSION_MINOR@
+#define wplPidgin_VERSION_PATCH @wplPidgin_VERSION_PATCH@
+
+#if (wplPidgin_VERSION_PATCH == 0)
+#define VERSION_NUMBER "@wplPidgin_VERSION_MAJOR@.@wplPidgin_VERSION_MINOR@"
 #else
-#define VERSION_NUMBER "@wplookup_VERSION_MAJOR@.@wplookup_VERSION_MINOR@.@wplookup_VERSION_PATCH@"
+#define VERSION_NUMBER "@wplPidgin_VERSION_MAJOR@.@wplPidgin_VERSION_MINOR@.@wplPidgin_VERSION_PATCH@"
 #endif

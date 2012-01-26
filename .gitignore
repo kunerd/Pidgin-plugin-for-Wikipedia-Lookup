@@ -3,6 +3,7 @@
 *~
 *anjuta*
 *.tasks
+*.log
 build
 deps
 build_win32

@@ -1,13 +1,12 @@
 /*
  *  Wikipedia Lookup - A third-party Pidgin plug-in which offers
- *					  you the possibility to look up received and
- *					  typed words on Wikipedia.
+ *  you the possibility to look up received and typed words on Wikipedia.
  *
- *  Copyright (C) 2011 Hendrik Kunert kunerd@users.sourceforge.net
+ *  Copyright (C) 2011, 2012 Hendrik Kunert kunerd@users.sourceforge.net
  *
- *  This file is part of wplookup.
+ *  This file is part of Wikipedia Lookup.
  *
- *  wplookup is free software: you can redistribute it and/or modify
+ *  Wikipedia Lookup is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
@@ -18,7 +17,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Wikipedia Lookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "wpopensearch.h"
@@ -72,6 +71,14 @@ void OpenSearch_destruct(OpenSearch *o)
     }
 }
 
+/** Lookup a word with OpenSearch engine on Wikipedia.
+  *
+  * @param o A OpenSearch structure to hold the data.
+  * @param text The text to look up.
+  *
+  * @return The number of results.
+  *
+  */
 int OpenSearch_search(OpenSearch *o, gchar *text)
 {
     //TODO: remove local static text, refactor

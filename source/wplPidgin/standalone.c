@@ -1,13 +1,27 @@
 /*
- * main-window.c
+ *  Wikipedia Lookup - A third-party Pidgin plug-in which offers
+ *  you the possibility to look up received and typed words on Wikipedia.
  *
- *  Created on: 31.05.2011
- *      Author: hendrik
+ *  Copyright (C) 2011, 2012 Hendrik Kunert kunerd@users.sourceforge.net
+ *
+ *  This file is part of Wikipedia Lookup.
+ *
+ *  Wikipedia Lookup is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Wikipedia Lookup is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Wikipedia Lookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <gtk/gtk.h>
-#include <webkit/webkit.h>
-#include "wplookup.h"
+
 #include "wplSettings.h"
 
 /* Another callback */
@@ -17,27 +31,22 @@ static void destroy( GtkWidget *widget,
     gtk_main_quit ();
 }
 
-void enter_button(GtkWidget *widget, gpointer data)
-{
-  GdkColor color;
-  color.red = 27000;
-  color.green = 30325;
-  color.blue = 34181;
-  gtk_widget_modify_bg(widget, GTK_STATE_PRELIGHT, &color);
-}
-
-void opensearchMenuCallback(GtkMenuItem *menuitem,
+static void opensearchMenuCallback(GtkMenuItem *menuitem,
                             gchar*     url)
 {
-    g_print(" --- \nURL: %s\n ---", url);
-    g_free(url);
+    if(url)
+    {
+        g_print(" --- \nURL: %s\n ---", url);
+        //g_print(_("Hello out there!"));
+        g_free(url);
+    }
 }
 
 int main( int   argc,
          char *argv[] )
 {
     /* GtkWidget is the storage type for widgets */
-    GtkWidget *window, *text_view, *vbox, *show;
+    GtkWidget *window, *text_view, *vbox, *vbox1, vbox2, *show, *prefs, *win;
     GtkTextTag *tag;
     GtkTextBuffer *buffer;
     GtkTextIter start, end;
@@ -48,6 +57,8 @@ int main( int   argc,
     WplPidginSettings_loadFromFile(settings);
     settings->wpl->opensearchCallback = G_CALLBACK(opensearchMenuCallback);
 
+    g_print("---\nsettings: %s, %s,\n---", settings->wpl->url, settings->wpl->language);
+    //g_print(_("Here is a translation test."));
     /* This is called in all GTK applications. Arguments are parsed
      * from the command line and are returned to the application. */
     gtk_init (&argc, &argv);
@@ -71,7 +82,7 @@ int main( int   argc,
 
     /* Sets the border width of the window. */
     gtk_container_set_border_width (GTK_CONTAINER (window), 10);
-    gtk_window_set_default_size(GTK_WINDOW(window), 250, 200);
+    gtk_window_set_default_size(GTK_WINDOW(window), 500, 500);
 
 
     vbox = gtk_vbox_new(FALSE, 0);
@@ -82,44 +93,51 @@ int main( int   argc,
 
 
     text_view = gtk_text_view_new();
+    //win = gtk_scrolled_window_new(0, 0);
     gtk_box_pack_start(GTK_BOX(vbox), text_view, TRUE, TRUE, 0);
-    gtk_widget_set_has_tooltip ( text_view , true ) ;
+    /*gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(win), GTK_SHADOW_IN);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(win),
+                    GTK_POLICY_NEVER,
+                    GTK_POLICY_ALWAYS);
+
+    gtk_widget_show(win);
+
+    prefs = WplPidginSettings_createViewAndModel(settings);*/
+    gtk_container_add(GTK_CONTAINER(window), text_view);
+    //gtk_box_pack_start(GTK_BOX(vbox), text_view, TRUE, TRUE, 0);
+    //gtk_widget_set_has_tooltip ( text_view , true ) ;
 
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
     /*g_signal_connect( G_OBJECT (text_view) , "query-tooltip" ,
                      G_CALLBACK (querytooltipcb) , (gpointer)settings->wpl) ;*/
 
-    g_signal_connect(G_OBJECT(text_view), "enter",
-          G_CALLBACK(enter_button), NULL);
-
 
     gtk_text_buffer_set_text(buffer, "Hallo Tooltip! Rory Gallagher.", -1);
 
-    tag = gtk_text_buffer_create_tag (buffer, "blue_foreground",
-                                      "foreground", "blue", NULL);
-
-    gtk_text_buffer_get_iter_at_offset (buffer, &start, 7);
-    gtk_text_buffer_get_iter_at_offset (buffer, &end, 13);
 
     //mark = gtk_text_buffer_create_mark(buffer,"tooltip",,TRUE);
-    gtk_text_buffer_apply_tag (buffer, tag, &start, &end);
     //gtk_widget_set_tooltip_text(GTK_WIDGET(tag), "Word Tooltip");
 
     gtk_text_view_set_editable (GTK_TEXT_VIEW(text_view), TRUE);
 
+    //show = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    //vbox1 = gtk_vbox_new(FALSE, 0);
+    //gtk_container_add(GTK_CONTAINER(vbox), vbox1);
+    //gtk_container_set_border_width(GTK_CONTAINER(vbox1), 4);
+    //gtk_widget_show(vbox1);
 
-    show = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_decorated(GTK_WINDOW(show), FALSE);
-    gtk_widget_show_all(show);
+    gtk_widget_show_all(window);
+
+    //gtk_widget_show_all(show);
 
     g_signal_connect(G_OBJECT(text_view), "populate-popup", G_CALLBACK(WikipediaLookup_rightClickPopup), (gpointer)settings->wpl);
 
-    gtk_widget_show_all(window);
     /* All GTK applications must have a gtk_main(). Control ends here
      * and waits for an event to occur (like a key press or
      * mouse event). */
     gtk_main ();
 
+    //g_signal_handlers_disconnect_matched(G_OBJECT(text_view),G_SIGNAL_MATCH_FUNC, 0, 0, NULL, G_CALLBACK(WikipediaLookup_rightClickPopup), NULL);
     WplPidginSettings_saveToFile(settings);
     WplPidginSettings_destruct(settings);
 

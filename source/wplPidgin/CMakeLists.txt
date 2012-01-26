@@ -1,20 +1,41 @@
+#
+#  Wikipedia Lookup - A third-party Pidgin plug-in which offers
+#  you the possibility to look up received and typed words on Wikipedia.
+#
+#  Copyright (C) 2011, 2012 Hendrik Kunert kunerd@users.sourceforge.net
+#
+#  This file is part of Wikipedia Lookup.
+#
+#  Wikipedia Lookup is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Wikipedia Lookup is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Wikipedia Lookup.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 project(wplPidgin C)
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
-set (wplookup_VERSION_MAJOR 0)
-set (wplookup_VERSION_MINOR 3)
-set (wplookup_VERSION_PATCH 0)
+set (wplPidgin_VERSION_MAJOR 0)
+set (wplPidgin_VERSION_MINOR 3)
+set (wplPidgin_VERSION_PATCH 0)
 
 set (SOURCE_FILES
-    wplPreview.c
     wplSettings.c
 )
 
-set (WPLOOKUP_CONTACT "Hendrik Kunert <kunerd@users.sourceforge.net>")
-set (WPLOOKUP_HOMEPAGE "http:\\\\\\\\sourceforge.net/projects/pidginpluginfor")
+set (WPLPIDGIN_CONTACT "Hendrik Kunert <kunerd@users.sourceforge.net>")
+set (WPLPIDGIN_HOMEPAGE "http:\\\\\\\\sourceforge.net/projects/pidginpluginfor")
 
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -121,53 +142,54 @@ target_link_libraries(
         ${GIO2_LIBRARIES}
 )
 
-enable_testing()
-add_subdirectory(tests)
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Wikipedia Lookup Pidgin Plugin")
+SET(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/DESCRIPTION")
+SET(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/COPYING")
+SET(CPACK_PACKAGE_VERSION_MAJOR "${wplPidgin_VERSION_MAJOR}")
+SET(CPACK_PACKAGE_VERSION_MINOR "${wplPidgin_VERSION_MINOR}")
+SET(CPACK_PACKAGE_VERSION_PATCH "${wplPidgin_VERSION_PATCH}")
 
+SET(CPACK_SOURCE_GENERATOR TGZ ZIP)
 if(UNIX)
         message("Installer will be build for Linux only")
-        #if(NOT EXISTS CMAKE_INSTALL_PREFIX)
-        #	message("Install prefix is not given, set to default!")
-        #	set(CMAKE_INSTALL_PREFIX "value")
-        #endif(NOT EXISTS CMAKE_INSTALL_PREFIX)
         install (TARGETS wplPidgin LIBRARY DESTINATION .purple/plugins)
-        install (DIRECTORY ../resources DESTINATION .purple/wplookup)
-
         SET(CPACK_GENERATOR RPM TGZ)
         SET(CPACK_INSTALL_PREFIX "/lib64/pidgin")
-        ##SET(CPACK_INSTALL_CMAKE_PROJECTS "$ENV{HOME}/.purple/plugins;wplookup;ALL;/")
-        SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "${WPLOOKUP_CONTACT}")
-        SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
+        SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "${WPLPIDGIN_CONTACT}")
+        SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${wplPidgin_VERSION_MAJOR}.${wplPidgin_VERSION_MINOR}")
         set(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES}
                                         "\\\\.*~"
                                         "\\\\.git*"
                                         "\\\\.anjuta*"
                                         "\\\\.task"
-                                        "\\\\build/*")
+                                        "\\\\build/*"
+                                        "\\\\CMakeLists.txt.user")
 else(UNIX)
         if(WIN32)
                 message("Installer will be build for Win32")
 
                 set(CPACK_PACKAGE_INSTALL_DIRECTORY "Pidgin")
 
-                #install (TARGETS wplookup
-                #	 DESTINATION plugins)
+                install (TARGETS wplPidgin
+                         DESTINATION plugins)
 
-                file(GLOB windows_dlls "${CMAKE_CURRENT_BINARY_DIR}/bin/*.dll")
-                install(FILES ${windows_dlls}
-                        DESTINATION ./)
-
-                install (DIRECTORY ../resources
-                         DESTINATION wplookup)
+               file(GLOB windows_dlls "${CMAKE_BINARY_DIR}/../bin/*.dll")
+               install(FILES ${windows_dlls}
+                       DESTINATION ./)
 
                 set(CPACK_GENERATOR NSIS)
                 #set(CPACK_NSIS_CREATE_ICONS "")
                 set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} Wikipedia Lookup")
-                set(CPACK_NSIS_HELP_LINK "${WPLOOKUP_HOMEPAGE}")
-                set(CPACK_NSIS_URL_INFO_ABOUT "${WPLOOKUP_HOMEPAGE}")
+                set(CPACK_NSIS_HELP_LINK "${WPLPIDGIN_HOMEPAGE}")
+                set(CPACK_NSIS_URL_INFO_ABOUT "${WPLPIDGIN_HOMEPAGE}")
                 set(CPACK_NSIS_MODIFY_PATH OFF)
-                set(CPACK_NSIS_CONTACT "${WPLOOKUP_CONTACT}")
+                set(CPACK_NSIS_CONTACT "${WPLPIDGIN_CONTACT}")
         endif(WIN32)
+endif(UNIX)
+
+if(UNIX)
+    enable_testing()
+    add_subdirectory(tests)
 endif(UNIX)
 
 include(CPack)

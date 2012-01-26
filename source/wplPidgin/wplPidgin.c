@@ -1,37 +1,36 @@
 /*
- *  Wikipedia Lookup - A third-party Pidgin plug-in which offers 
- *					  you the possibility to look up received and
- *					  typed words on Wikipedia.
+ *  Wikipedia Lookup - A third-party Pidgin plug-in which offers
+ *  you the possibility to look up received and typed words on Wikipedia.
  *
- *  Copyright (C) 2011 Hendrik Kunert kunerd@users.sourceforge.net
+ *  Copyright (C) 2011, 2012 Hendrik Kunert kunerd@users.sourceforge.net
  *
- *  This file is part of wplookup.
+ *  This file is part of Wikipedia Lookup.
  *
- *  wplookup is free software: you can redistribute it and/or modify
+ *  Wikipedia Lookup is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  Foobar is distributed in the hope that it will be useful,
+ *  Wikipedia Lookup is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Wikipedia Lookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
-* @file wplPidgin.h
+* @file wplPidgin.c
 *
 * @brief Pidgin plugin bindings
 *
-* Here are all Pidgin plugin bindings.
+* Main file of Wikipedia Lookup Pidgin plug-in. Implements the
+* Pidgin plug-in interface functions.
 */
 
 #include "wplPidgin.h"
 #include "wpconf.h"
-
 
 WplPidginPlugin *wpl_plugin = NULL;
 
@@ -55,8 +54,14 @@ void WplPidginPlugin_destruct(WplPidginPlugin *o)
     }
 }
 
-static void opensearchMenuCallback(GtkMenuItem *menuitem,
-                                   gchar*     url)
+/** Callback for opensearch menu entries.
+  *
+  * This function is called, if the user clicks left on a menu entry.
+  *
+  * @param menuItem Pointer to menu item, that has been activated.
+  * @param url Wikipedia article url.
+  */
+static void opensearchMenuCallback(GtkMenuItem *menuitem, gchar* url)
 {
     if(url != NULL)
     {
@@ -65,10 +70,9 @@ static void opensearchMenuCallback(GtkMenuItem *menuitem,
     }
 }
 
-/**
-  Hallo Doxygen
+/** Attaches the popup menu to the Pidgin conversation and chat input field.
   */
-static void wplookup_attach_conv(PurpleConversation *conv, WplPidginPlugin *o){
+static void WplPidginPlugin_attachConversation(PurpleConversation *conv, WplPidginPlugin *o){
 
  PidginConversation *gtkconv;
   GtkTextView *view;
@@ -83,7 +87,9 @@ static void wplookup_attach_conv(PurpleConversation *conv, WplPidginPlugin *o){
 
 }
 
-static void wplookup_remove_from_conv(PidginConversation *gtkconv){
+/** Removes the popup menu from the Pidgin conversation and chat input field.
+  */
+static void WplPidginPlugin_removeFromConversation(PidginConversation *gtkconv){
 
   GtkTextView *view;
 
@@ -95,7 +101,8 @@ static void wplookup_remove_from_conv(PidginConversation *gtkconv){
 
 }
 
-//Function is called on loading of the plugin
+/** Implementation of the Pidgin plug-in interface startup function.
+*/
 static gboolean
 plugin_load(PurplePlugin *plugin) {
     void *conv_handle;
@@ -113,18 +120,21 @@ plugin_load(PurplePlugin *plugin) {
 
     conv_handle = purple_conversations_get_handle();
 
-    /*Attach to existing conversations */
     for (convs = purple_get_conversations(); convs != NULL; convs = convs->next)
     {
-        wplookup_attach_conv((PurpleConversation *)convs->data, (gpointer)wpl_plugin);
+        WplPidginPlugin_attachConversation((PurpleConversation *)convs->data, (gpointer)wpl_plugin);
     }
 
     purple_signal_connect(conv_handle, "conversation-created",
-                          plugin, PURPLE_CALLBACK(wplookup_attach_conv), (gpointer)wpl_plugin);
+                          plugin, PURPLE_CALLBACK(WplPidginPlugin_attachConversation), (gpointer)wpl_plugin);
 
     return TRUE;
 }
 
+/** Implementation of the Pidgin plug-in interface unload function.
+  *
+  * Does all the cleanup for the Plug-in and save the Plug-in settings.
+*/
 static gboolean
 plugin_unload(PurplePlugin *plugin){
   void *conv_handle;
@@ -132,23 +142,27 @@ plugin_unload(PurplePlugin *plugin){
 
   conv_handle = purple_conversations_get_handle();
 
-  /*save settings */
   WplPidginSettings_saveToFile(wpl_plugin->settings);
 
   for (convs = purple_get_conversations(); convs != NULL; convs = convs->next)
   {
     PurpleConversation *conv = (PurpleConversation *)convs->data;
     if(PIDGIN_IS_PIDGIN_CONVERSATION(conv)){
-      wplookup_remove_from_conv(PIDGIN_CONVERSATION(conv));
+      WplPidginPlugin_removeFromConversation(PIDGIN_CONVERSATION(conv));
     }
   }
 
-  /* cleanup */
   WplPidginPlugin_destruct(wpl_plugin);
 
   return TRUE;
 }
 
+/** Implementation of the Pidgin plug-in interface settings function.
+  *
+  * Creates a GTK+ window for the plug-in settings.
+  *
+  * @return GTK+ vbox widget, that contains the language list.
+*/
 GtkWidget *WplPidginSettings_createWindows(PurplePlugin *plugin)
 {
         GtkWidget *ret, *vbox, *win, *language_list;

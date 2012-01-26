@@ -1,32 +1,28 @@
 /*
- *  Simple example of a CUnit unit test.
+ *  Wikipedia Lookup - A third-party Pidgin plug-in which offers
+ *  you the possibility to look up received and typed words on Wikipedia.
  *
- *  This program (crudely) demonstrates a very simple "black box"
- *  test of the standard library functions fprintf() and fread().
- *  It uses suite initialization and cleanup functions to open
- *  and close a common temporary file used by the test functions.
- *  The test functions then write to and read from the temporary
- *  file in the course of testing the library functions.
+ *  Copyright (C) 2011, 2012 Hendrik Kunert kunerd@users.sourceforge.net
  *
- *  The 2 test functions are added to a single CUnit suite, and
- *  then run using the CUnit Basic interface.  The output of the
- *  program (on CUnit version 2.0-2) is:
+ *  This file is part of Wikipedia Lookup.
  *
- *           CUnit : A Unit testing framework for C.
- *           http://cunit.sourceforge.net/
+ *  Wikipedia Lookup is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- *       Suite: Suite_1
- *         Test: test of fprintf() ... passed
- *         Test: test of fread() ... passed
+ *  Wikipedia Lookup is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *       --Run Summary: Type      Total     Ran  Passed  Failed
- *                      suites        1       1     n/a       0
- *                      tests         2       2       2       0
- *                      asserts       5       5       5       0
+ *  You should have received a copy of the GNU General Public License
+ *  along with Wikipedia Lookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <stdio.h>
 #include <string.h>
+
 #include "CUnit/Basic.h"
 #include "wplookup.h"
 #include "wpopensearch.h"
@@ -100,26 +96,19 @@ void testWPLOOKUP(void)
 {
     WikipediaLookup *wpl;
     int i;
-    /*wpl = WikipediaLookup_construct("http://wiki", "Deutsch");
-    CU_ASSERT(NULL != wpl->url);
-    CU_ASSERT(0 == g_strcmp0("http://wiki", wpl->url));
-    CU_ASSERT(NULL != wpl->language);
-    CU_ASSERT(0 == g_strcmp0("Deutsch", wpl->language));*/
 
-    LinkedList *list, *iterator;
-    list = LinkedList_construct(NULL);
-    i = WikipediaLookup_getLanguages(list);
-    printf("  --> wiki-count: %d --> ", i);
+    GList *list, *iterator;
+    list = WikipediaLookup_getLanguages();
+    printf("  --> wiki-count: %d --> ", g_list_length(list));
 
-    iterator = list;
-    while(iterator != NULL)
+    for(iterator = list; iterator != NULL; iterator = g_list_next(iterator))
     {
         wpl = (WikipediaLookup*)(iterator->data);
         //printf("Wiki: %s, URL: %s\n", wpl->language, wpl->url);
         WikipediaLookup_destruct(wpl);
         iterator = iterator->next;
     }
-    LinkedList_destruct(list);
+    g_list_free(list);
 }
 
 void testWPARTICLE(void)

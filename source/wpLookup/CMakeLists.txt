@@ -1,3 +1,25 @@
+#
+#  Wikipedia Lookup - A third-party Pidgin plug-in which offers
+#  you the possibility to look up received and typed words on Wikipedia.
+#
+#  Copyright (C) 2011, 2012 Hendrik Kunert kunerd@users.sourceforge.net
+#
+#  This file is part of Wikipedia Lookup.
+#
+#  Wikipedia Lookup is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Wikipedia Lookup is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Wikipedia Lookup.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 project(wplookup C)
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
@@ -12,23 +34,7 @@ set (SOURCE_FILES
     wparticle.c
     wpopensearch.c
     wpxml.c
-    wplinkedlist.c
 )
-
-set (WPLOOKUP_CONTACT "Hendrik Kunert <kunerd@users.sourceforge.net>")
-set (WPLOOKUP_HOMEPAGE "http:\\\\\\\\sourceforge.net/projects/pidginpluginfor")
-
-# configure a header file to pass some of the CMake settings
-# to the source code
-#configure_file (
-#  "${PROJECT_SOURCE_DIR}/wpconf.h.in"
-#  "${PROJECT_BINARY_DIR}/wpconf.h"
-#  )
-
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-
-#add_subdirectory(wplPidgin)
-#add_subdirectory(wpLookup)
 
 ################ Gtk2 install Check ####################
 find_package(GTK2 REQUIRED)
@@ -74,5 +80,7 @@ target_link_libraries(
         ${LIBXML2_LIBRARIES}
 )
 
-enable_testing()
-add_subdirectory(tests)
+if(UNIX)
+    enable_testing()
+    add_subdirectory(tests)
+endif(UNIX)

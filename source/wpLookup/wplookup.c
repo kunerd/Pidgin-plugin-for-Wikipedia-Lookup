@@ -1,27 +1,27 @@
 /*
  *  Wikipedia Lookup - A third-party Pidgin plug-in which offers
- *					  you the possibility to look up received and
- *					  typed words on Wikipedia.
+ *  you the possibility to look up received and typed words on Wikipedia.
  *
- *  Copyright (C) 2011 Hendrik Kunert kunerd@users.sourceforge.net
+ *  Copyright (C) 2011, 2012 Hendrik Kunert kunerd@users.sourceforge.net
  *
- *  This file is part of wplookup.
+ *  This file is part of Wikipedia Lookup.
  *
- *  wplookup is free software: you can redistribute it and/or modify
+ *  Wikipedia Lookup is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  Foobar is distributed in the hope that it will be useful,
+ *  Wikipedia Lookup is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with wplookup.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Wikipedia Lookup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <libxml/xpath.h>
+
 #include "wplookup.h"
 #include "wpopensearch.h"
 #include "wpxml.h"
@@ -36,6 +36,7 @@ WikipediaLookup *WikipediaLookup_construct(gchar *url, gchar *language)
     o->url = url;
     o->language = language;
     o->opensearchLimit = 10;
+    o->opensearchCallback = NULL;
 
     return o;
 }
@@ -50,12 +51,16 @@ void WikipediaLookup_destruct(WikipediaLookup *o)
     }
 }
 
-/* TODO use GList */
-int WikipediaLookup_getLanguages(LinkedList *resultList)
+/** Get's all Wikipedia URLs, for all existing Wikipedias.
+  *
+  * @return GList with WikipediaLookup structures of all Wikipedias out there.
+  * @see WikipediaLookup
+  */
+GList *WikipediaLookup_getLanguages(void)
 {
+    GList *languageList = NULL;
     WikipediaXml *xml = NULL;
     xmlXPathObjectPtr result = NULL;
-    int count = 0;
     int index;
     gchar *name;
     gchar *url;
@@ -77,8 +82,7 @@ int WikipediaLookup_getLanguages(LinkedList *resultList)
             if(url != NULL)
             {
                 wpl = WikipediaLookup_construct(url,name);
-                LinkedList_addElement(resultList, wpl);
-                count++;
+                languageList = g_list_append(languageList, (gpointer) wpl);
             }
             else{
                 g_free(name);
@@ -87,7 +91,7 @@ int WikipediaLookup_getLanguages(LinkedList *resultList)
     }
     xmlXPathFreeObject (result);
     WikipediaXml_destruct(xml);
-    return count;
+    return languageList;
 }
 
 static gchar *WikipediaLookup_getClickedWord(GtkTextView *text_view)
@@ -151,6 +155,11 @@ void WikipediaLookup_rightClickPopup(GtkTextView *text_view, GtkMenu *menu, Wiki
     GtkWidget *menu_entry = NULL;
     GtkWidget *parent = NULL;
 
+    if(o->opensearchCallback == NULL)
+    {
+        return;
+    }
+
     word = WikipediaLookup_getClickedWord(text_view);
 
     if(word == NULL)
@@ -170,13 +179,9 @@ void WikipediaLookup_rightClickPopup(GtkTextView *text_view, GtkMenu *menu, Wiki
         gtk_menu_append(GTK_MENU(menu),menu_entry);
 
         parent = gtk_widget_get_toplevel (GTK_WIDGET(text_view));
-        if (gtk_widget_is_toplevel (parent))
-        {
-                g_signal_connect(G_OBJECT(menu_entry), "activate", G_CALLBACK(o->opensearchCallback), (gpointer) g_strdup(item->url));
 
-                g_print("%s\n", item->url);
-                gtk_widget_show(menu_entry);
-        }
+        g_signal_connect(G_OBJECT(menu_entry), "activate", G_CALLBACK(o->opensearchCallback), (gpointer) g_strdup(item->url));
+        gtk_widget_show(menu_entry);
     }
 
     g_free(word);
