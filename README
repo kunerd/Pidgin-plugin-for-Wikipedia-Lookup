@@ -18,28 +18,17 @@ If that happens, please write a bug report or an mail.
 
 How to use
 ----------
-First add the plugin (Tools->Plugins), call the Settings dialog and choose your 
-preferred Wikipedia language.
-Open a conversation window and type in a word. Now select the
-word, open the context-menu (right-click) and choose menu entry
-Wikipedia.
+First add the plugin (Tools->Plugins). After that, call the Settings dialog and choose your preferred Wikipedia language.
+
+Open a conversation window and type in a word. Now open the context-menu (right-click on the word) and move the mouse pointer over the word you typed in. Now a tooltip window with a short description should appear. If you want to open the related article on Wikipedia, left-click on the menu entry. 
 
 More functions coming soon. 
 
 
 Support
 -------
-http://sourceforge.net/projects/pidginpluginfor/
-
-
-Bug-Report
-----------
-Please create a new Ticket at https://sourceforge.net/apps/trac/pidginpluginfor/newticket?type=bug.
-Or write an email to:
-kunerd@users.sourceforge.net
-
-
+https://github.com/kunerd/Pidgin-plugin-for-Wikipedia-Lookup/wiki
 
 Developers
 ----------
-Hendrik Kunert <kunerd@users.sourceforge.net>
+Hendrik Kunert
