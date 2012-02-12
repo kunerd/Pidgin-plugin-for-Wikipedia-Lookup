@@ -67,13 +67,6 @@ if (PURPLE_FOUND)
         include_directories(${PURPLE_INCLUDE_DIRS})
 endif(PURPLE_FOUND)
 
-################ WebkitGtk install Check ####################
-find_package(WebkitGtk REQUIRED)
-if (WEBKITGTK_FOUND)
-        add_definitions(${WEBKITGTK_DEFINITIONS})
-        include_directories(${WEBKITGTK_INCLUDE_DIRS})
-endif(WEBKITGTK_FOUND)
-
 ################ LibSoup2 install Check ####################
 find_package(LibSoup2 REQUIRED)
 if (LIBSOUP2_FOUND)
@@ -121,7 +114,6 @@ target_link_libraries(
         ${CURL_LIBRARIES}
         ${LIBXML2_LIBRARIES}
         ${LIBSOUP_LIBRARIES}
-        ${WEBKITGTK_LIBRARIES}
         ${PIDGIN_LIBRARIES}
         ${PURPLE_LIBRARIES}
         ${GIO2_LIBRARIES}
@@ -136,7 +128,6 @@ target_link_libraries(
         ${CURL_LIBRARIES}
         ${LIBXML2_LIBRARIES}
         ${LIBSOUP_LIBRARIES}
-        ${WEBKITGTK_LIBRARIES}
         ${PIDGIN_LIBRARIES}
         ${PURPLE_LIBRARIES}
         ${GIO2_LIBRARIES}
